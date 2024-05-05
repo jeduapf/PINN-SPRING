@@ -19,46 +19,90 @@ else:
 
 print(f"\nUsing device: {device}\n\n")
 
-def losses_constants_plot(mus, losses, SAVE_DIR):
+def losses_constants_plot(mus, losses, SAVE_DIR, d = 2, w0 = 20):
     plt.rcParams['figure.figsize'] = [18, 9]
 
     mus_np = np.array(mus)
     losses_np = np.array(losses)
 
-    fig = plt.figure()
-    plt.title("mu")
-    plt.plot(list(mus_np[:,0]), label="PINN estimate")
-    plt.hlines(2*d, 0, len(mus_np), label="True value", color="tab:green")
-    plt.legend()
-    plt.xlabel("Training step")
-    plt.savefig(os.path.join(SAVE_DIR,"mu.png"), dpi=100, facecolor="white")
-    plt.close(fig)
 
-    fig = plt.figure()
-    plt.title("k")
-    plt.plot(list(mus_np[:,1]), label="PINN estimate")
-    plt.hlines(w0**2, 0, len(mus_np), label="True value", color="tab:green")
-    plt.legend()
-    plt.xlabel("Training step")
-    plt.savefig(os.path.join(SAVE_DIR,"k.png"), dpi=100, facecolor="white")
-    plt.close(fig)
+    X = np.linspace(0,mus_np.shape[0],mus_np.shape[0])
 
-    fig, ax = plt.subplots(3,1)
-    fig.suptitle(f"Losses")
-    plt.subplot(3,1,1)
-    plt.plot(list(losses_np[:,0]), label="Physical loss")
-    plt.legend()
-    plt.subplot(3,1,2)
-    plt.plot(list(losses_np[:,1]), label="Data loss")
-    plt.legend()
-    plt.subplot(3,1,3)
-    plt.plot(list(losses_np[:,2]), label="Total loss")
-    plt.legend()
-    plt.xlabel("Training step")
-    plt.tight_layout()
-    plt.savefig(os.path.join(SAVE_DIR,"Losses.png"), dpi=100, facecolor="white")
-    plt.close(fig)
+    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, 
+                        subplot_titles=( "Mu", "K"))
+
+    fig.add_trace(
+        go.Scatter(x=X, y=mus_np[:,0], name = "PINN estimate"),
+        row=1, col=1
+        )
+    fig.add_hline(y=2*d, line_dash="dot", name = f"Expected mu {2*d:.2f}", row=1, col=1)
+
+    fig.add_trace(
+        go.Scatter(x=X, y=mus_np[:,1], name = "K"),
+        row=2, col=1
+        )
+    fig.add_hline(y=w0**2, line_dash="dot", name = f"Expected k {w0**2:.2f}", row=2, col=1)
+
+    fig.write_html(os.path.join(SAVE_DIR,"constants.html"))
+
+
+    # fig = plt.figure()
+    # plt.title("mu")
+    # plt.plot(list(mus_np[:,0]), label="PINN estimate")
+    # plt.hlines(2*d, 0, len(mus_np), label="True value", color="tab:green")
+    # plt.legend()
+    # plt.xlabel("Training step")
+    # plt.savefig(os.path.join(SAVE_DIR,"mu.png"), dpi=100, facecolor="white")
+    # plt.close(fig)
+
+    # fig = plt.figure()
+    # plt.title("k")
+    # plt.plot(list(mus_np[:,1]), label="PINN estimate")
+    # plt.hlines(w0**2, 0, len(mus_np), label="True value", color="tab:green")
+    # plt.legend()
+    # plt.xlabel("Training step")
+    # plt.savefig(os.path.join(SAVE_DIR,"k.png"), dpi=100, facecolor="white")
+    # plt.close(fig)
+
+    # fig, ax = plt.subplots(3,1)
+    # fig.suptitle(f"Losses")
+    # plt.subplot(3,1,1)
+    # plt.plot(list(losses_np[:,0]), label="Physical loss")
+    # plt.legend()
+    # plt.subplot(3,1,2)
+    # plt.plot(list(losses_np[:,1]), label="Data loss")
+    # plt.legend()
+    # plt.subplot(3,1,3)
+    # plt.plot(list(losses_np[:,2]), label="Total loss")
+    # plt.legend()
+    # plt.xlabel("Training step")
+    # plt.tight_layout()
+    # plt.savefig(os.path.join(SAVE_DIR,"Losses.png"), dpi=100, facecolor="white")
+    # plt.close(fig)
         
+    X = np.linspace(0,losses_np.shape[0],losses_np.shape[0])
+
+    fig = make_subplots(rows=3, cols=1, shared_xaxes=True, 
+                        subplot_titles=( "Loss Data", "Loss f", "Total Loss"))
+
+    fig.add_trace(
+        go.Scatter(x=X, y=losses_np[:,0], name = "Physical Loss"),
+        row=1, col=1
+        )
+    fig.add_trace(
+        go.Scatter(x=X, y=losses_np[:,1], name = "Data Loss"),
+        row=2, col=1
+        )
+
+    fig.add_trace(
+        go.Scatter(x=X, y=losses_np[:,2], name = "Total Loss"),
+        row=3, col=1
+        )
+    fig.update_layout( height=1500, width=1500, 
+                            title_text="Losses training", showlegend=False)
+
+    fig.write_html(os.path.join(SAVE_DIR,"losses.html"))
+
 def save_gif_PIL(outfile, files, fps=5, loop=0):
     "Helper function for saving GIFs"
     imgs = [Image.open(file) for file in files]
@@ -295,7 +339,7 @@ if __name__ == "__main__":
 
     # first, create some noisy observational data
     torch.manual_seed(123)
-    EPOCHS = 25000
+    EPOCHS = 2500
     figs = 137
     d, w0 = 2, 20
     N_phy_points = 500
@@ -387,7 +431,7 @@ if __name__ == "__main__":
             files.append(file)
             plt.close(fig)
 
-    files1, files2 = write_losses(u_obs, us, mus, SAVE_DIR, losses, l = lambda1, TEXT = False, PLOT = True, fig_pass = figs)
+    files1, files2 = write_losses(u_obs, us, mus, SAVE_DIR, losses, l = lambda1, TEXT = False, PLOT = False, fig_pass = figs)
     losses_constants_plot(mus, losses, SAVE_DIR)
 
     print("\n\nGenerating GIFs...\n\n")
