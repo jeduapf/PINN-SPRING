@@ -7,17 +7,16 @@ from tqdm import tqdm
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-
-
 import torch
 # CUDA support 
 if torch.cuda.is_available():
     device = torch.device('cuda')
 else:
     device = torch.device('cpu')
-# torch.set_default_device(device)
-
+torch.set_default_device(device)
 print(f"\nUsing device: {device}\n\n")
+
+
 
 def losses_constants_plot(mus, losses, SAVE_DIR, d = 2, w0 = 20):
     plt.rcParams['figure.figsize'] = [18, 9]
@@ -335,40 +334,53 @@ def write_losses(u_obs, us, mus, FINAL_DIR, losses, l = 10**4, TEXT = False, PLO
 
 if __name__ == "__main__":
     plt.rcParams['figure.figsize'] = [12, 5]
-
-    # first, create some noisy observational data
     torch.manual_seed(123)
-    EPOCHS = 100000
-    figs = 237
+
     d, w0 = 2, 20
-    N_phy_points = 300
-    N_obs_points = 60
-    lr = 3*10**-4
-    lambda1 = 10**5
-    start_mu = 13.0
-    start_k = 417.0
+
+    # Error related to constants of the system 'guess'
+    MU, SIG = 0, 10
+    # Shuold be at least 2 for Nyquist, but can be higher for safety results
+    K_freq = 2*15
+
+    N_obs_points = K_freq*int(w0/6)             # Related to maximum frequency of the signal
+    N_phy_points = K_freq*N_obs_points          # Related to physics loss and continuity ( smoothness ) of the PINN solution
+    neurons = 32                                # Related to maximum frequency too?  NO apperantly 
+    layers = 3
+    
+    t_obs = torch.rand(N_obs_points).view(-1,1)
+    u_obs = exact_solution(d, w0, t_obs) + 0.04*torch.randn_like(t_obs)
+    u_obs_np = u_obs.detach().cpu().numpy()
+    t_obs_np = t_obs.detach().cpu().numpy()
+    t_test = torch.linspace(0,1,1000).view(-1,1)
+    t_test_np = t_test.detach().cpu().numpy()
+    u_exact = exact_solution(d, w0, t_test)
+
+    print(f"True value of mu: {2*d}")
+    print(f"True value of k: {w0**2}\n\n")
+
+    lr = torch.var(u_obs).item()**2/K_freq                # I guess it is related to the signal variance
+    lambda1 = int(10**( (w0/6) + (K_freq+layers)/K_freq ))       # Related to maximum frequency of the signal, cuz thz higher the frequency the higher the derivative !
+
+    start_mu = 2*d + np.random.normal(MU, SIG, 1)[0]
+    start_k = w0**2 + np.random.normal(MU, SIG, 1)[0]
+
+    # Related to the learning rate and initial guess error steps and some confidence (99,7% 3*sig ?)
+    EPOCHS = int(4.5*SIG/lr)   
+
+    figs = int(EPOCHS/100)
 
     SAVE_DIR, SAVE_GIF_DIR = DIRs(path_name = f'mu0_{start_mu:.1f}_k0_{start_k:.1f}_pys_{int(N_phy_points)}_obs_{int(N_obs_points)}_iter_{int(EPOCHS/1000)}k_lr_{lr:4.2e}_lb_{lambda1:4.2e}', 
                                     path_gif_name = 'gif')
 
-    t_obs = torch.rand(N_obs_points).view(-1,1)
-    u_obs = exact_solution(d, w0, t_obs) + 0.04*torch.randn_like(t_obs)
-    t_test = torch.linspace(0,1,3000).view(-1,1)
-    u_exact = exact_solution(d, w0, t_test)
-
-    print(f"True value of mu: {2*d}")
-    print(f"True value of k: {w0**2}")
-    print(f"u_exact square mean: {torch.sqrt(torch.mean(u_exact**2))}")
-
     # define a neural network to train
     # N_INPUT, N_OUTPUT, N_HIDDEN, N_LAYERS
-    pinn = FCN(1,1,32,3)
+    pinn = FCN(1,1,neurons,layers)
 
     # define training points over the entire domain, for the physics loss
     t_physics = torch.linspace(0,1,N_phy_points).view(-1,1).requires_grad_(True)
 
     # train the PINN
-    d, w0 = 2, 20
     mu, k = 2*d, w0**2
 
     # treat mu as a learnable parameter
@@ -425,8 +437,8 @@ if __name__ == "__main__":
             fig = plt.figure(figsize=(12,5))
             # fig.set_size_inches(18.5, 10.5)
             u = pinn(t_test).detach()
-            plt.scatter(t_obs[:,0], u_obs[:,0], label="Noisy observations", alpha=0.6)
-            plt.plot(t_test[:,0], u[:,0], label="PINN solution", color="tab:green")
+            plt.scatter(t_obs_np[:,0], u_obs_np[:,0], label="Noisy observations", alpha=0.6)
+            plt.plot(t_test_np[:,0], u.detach().cpu().numpy()[:,0], label="PINN solution", color="tab:green")
             plt.title(f"Training step {i}")
             plt.legend()
 
@@ -436,7 +448,7 @@ if __name__ == "__main__":
             plt.close(fig)
 
     files1, files2 = write_losses(u_obs, us, mus, SAVE_DIR, losses, l = lambda1, TEXT = False, PLOT = True, fig_pass = figs, SAVE_PATH = SAVE_DIR)
-    losses_constants_plot(mus, losses, SAVE_DIR)
+    losses_constants_plot(mus, losses, SAVE_DIR, d, w0)
 
     print("\n\nGenerating GIFs...\n\n")
     save_gif_PIL(os.path.join(SAVE_DIR,"learning_k_mu.gif"), files, fps=60, loop=0)
