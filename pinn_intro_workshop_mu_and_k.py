@@ -83,7 +83,7 @@ def losses_constants_plot(mus, losses, SAVE_DIR, d = 2, w0 = 20):
     X = np.linspace(0,losses_np.shape[0],losses_np.shape[0])
 
     fig = make_subplots(rows=3, cols=1, shared_xaxes=True, 
-                        subplot_titles=( "Loss Data", "Loss f", "Total Loss"))
+                        subplot_titles=( "Loss f", "Loss Data", "Total Loss"))
 
     fig.add_trace(
         go.Scatter(x=X, y=losses_np[:,0], name = "Physical Loss"),
@@ -180,8 +180,8 @@ def plot_3D(us, mus, losses):
     else:
         fig.show()
 
-def write_losses(u_obs, us, mus, FINAL_DIR, losses, l = 10**4, TEXT = False, PLOT = True, fig_pass = 13):
-    SAVE_DIR = os.path.join(os.getcwd(),'figures')
+def write_losses(u_obs, us, mus, FINAL_DIR, losses, l = 10**4, TEXT = False, PLOT = True, fig_pass = 13, SAVE_PATH = r'.'):
+    SAVE_DIR = os.path.join(SAVE_PATH,'figures')
     try:
         os.mkdir(SAVE_DIR)
     except:
@@ -298,58 +298,62 @@ def write_losses(u_obs, us, mus, FINAL_DIR, losses, l = 10**4, TEXT = False, PLO
     if TEXT:
         f.close()
 
-    if PLOT:
-        L1s = np.array(L1s)
-        L2s = np.array(L2s)
-        pytorch_l1 = np.array(pytorch_l1)
-        pytorch_l2 = np.array(pytorch_l2)
-        pytorch_l = np.array(pytorch_l)
+    # if PLOT:
+    #     L1s = np.array(L1s)
+    #     L2s = np.array(L2s)
+    #     pytorch_l1 = np.array(pytorch_l1)
+    #     pytorch_l2 = np.array(pytorch_l2)
+    #     pytorch_l = np.array(pytorch_l)
 
-        fig, ax = plt.subplots(3,1)
-        fig.suptitle(f"Difference between losses calculated pytorch and numpy")
+    #     fig, ax = plt.subplots(3,1)
+    #     fig.suptitle(f"Difference between losses calculated pytorch and numpy")
 
-        plt.subplot(3,1,1)
-        # plt.plot(pytorch_l1, label="Pytorch Loss 1", linewidth=2, color='red', alpha=0.3)
-        # plt.plot(L1s, label="Numpy Loss 1", linewidth=2, color='blue', alpha=0.8)
-        plt.plot(np.abs(pytorch_l1 - L1s), linewidth=2 , label=f"Physics Loss Sum: {np.sum(np.abs(pytorch_l1 - L1s)):.5f}")
-        plt.legend()
+    #     plt.subplot(3,1,1)
+    #     # plt.plot(pytorch_l1, label="Pytorch Loss 1", linewidth=2, color='red', alpha=0.3)
+    #     # plt.plot(L1s, label="Numpy Loss 1", linewidth=2, color='blue', alpha=0.8)
+    #     plt.plot(np.abs(pytorch_l1 - L1s), linewidth=2 , label=f"Physics Loss Sum: {np.sum(np.abs(pytorch_l1 - L1s)):.5f}")
+    #     plt.legend()
 
-        plt.subplot(3,1,2)
-        # plt.plot(pytorch_l2, label="Pytorch Loss 2", linewidth=2, color='red', alpha=0.3)
-        # plt.plot(L2s, label="Numpy Loss 2", linewidth=2, color='blue', alpha=0.8)
-        plt.plot(np.abs(pytorch_l2 - L2s), linewidth=2 , label=f"Data Loss Sum: {np.sum(np.abs(pytorch_l2 - L2s)):.5f}")
-        plt.legend()
+    #     plt.subplot(3,1,2)
+    #     # plt.plot(pytorch_l2, label="Pytorch Loss 2", linewidth=2, color='red', alpha=0.3)
+    #     # plt.plot(L2s, label="Numpy Loss 2", linewidth=2, color='blue', alpha=0.8)
+    #     plt.plot(np.abs(pytorch_l2 - L2s), linewidth=2 , label=f"Data Loss Sum: {np.sum(np.abs(pytorch_l2 - L2s)):.5f}")
+    #     plt.legend()
 
-        plt.subplot(3,1,3)
-        # plt.plot(pytorch_l, label="Pytorch Loss", linewidth=2, color='red', alpha=0.3)
-        # plt.plot(L1s + l*L2s, label="Numpy Loss", linewidth=2, color='blue', alpha=0.8)
-        plt.plot(np.linspace(0,len(pytorch_l),len(pytorch_l)),np.abs(pytorch_l - (L1s + l*L2s)), linewidth=2 , label=f"All Loss Sum: {np.sum(np.abs(pytorch_l - (L1s + l*L2s))):.5f}")
+    #     plt.subplot(3,1,3)
+    #     # plt.plot(pytorch_l, label="Pytorch Loss", linewidth=2, color='red', alpha=0.3)
+    #     # plt.plot(L1s + l*L2s, label="Numpy Loss", linewidth=2, color='blue', alpha=0.8)
+    #     plt.plot(np.linspace(0,len(pytorch_l),len(pytorch_l)),np.abs(pytorch_l - (L1s + l*L2s)), linewidth=2 , label=f"All Loss Sum: {np.sum(np.abs(pytorch_l - (L1s + l*L2s))):.5f}")
 
-        plt.xlabel(f"Iterations")
-        plt.legend()
-        plt.tight_layout()
-        plt.savefig(os.path.join(FINAL_DIR,f"ALL.png"), dpi=300, facecolor="white")
-        plt.close(fig)
+    #     plt.xlabel(f"Iterations")
+    #     plt.legend()
+    #     plt.tight_layout()
+    #     plt.savefig(os.path.join(FINAL_DIR,f"ALL.png"), dpi=300, facecolor="white")
+    #     plt.close(fig)
 
     return files1, files2
 
 if __name__ == "__main__":
     plt.rcParams['figure.figsize'] = [12, 5]
-    SAVE_DIR, SAVE_GIF_DIR = DIRs(path_name = 'save_imgs', path_gif_name = 'gif')
 
     # first, create some noisy observational data
     torch.manual_seed(123)
-    EPOCHS = 2500
-    figs = 137
+    EPOCHS = 100000
+    figs = 237
     d, w0 = 2, 20
-    N_phy_points = 500
-    N_obs_points = 40
-    lr = 5*10**-4
-    lambda1 = 10**4
+    N_phy_points = 300
+    N_obs_points = 60
+    lr = 3*10**-4
+    lambda1 = 10**5
+    start_mu = 13.0
+    start_k = 417.0
+
+    SAVE_DIR, SAVE_GIF_DIR = DIRs(path_name = f'mu0_{start_mu:.1f}_k0_{start_k:.1f}_pys_{int(N_phy_points)}_obs_{int(N_obs_points)}_iter_{int(EPOCHS/1000)}k_lr_{lr:4.2e}_lb_{lambda1:4.2e}', 
+                                    path_gif_name = 'gif')
 
     t_obs = torch.rand(N_obs_points).view(-1,1)
     u_obs = exact_solution(d, w0, t_obs) + 0.04*torch.randn_like(t_obs)
-    t_test = torch.linspace(0,1,300).view(-1,1)
+    t_test = torch.linspace(0,1,3000).view(-1,1)
     u_exact = exact_solution(d, w0, t_test)
 
     print(f"True value of mu: {2*d}")
@@ -368,8 +372,8 @@ if __name__ == "__main__":
     mu, k = 2*d, w0**2
 
     # treat mu as a learnable parameter
-    mu_nn = torch.nn.Parameter(torch.tensor([2.0], requires_grad=True))
-    k_nn = torch.nn.Parameter(torch.tensor([388.0], requires_grad=True))
+    mu_nn = torch.nn.Parameter(torch.tensor([float(start_mu)], requires_grad=True))
+    k_nn = torch.nn.Parameter(torch.tensor([float(start_k)], requires_grad=True))
 
     mus = []
     us = []
@@ -431,7 +435,7 @@ if __name__ == "__main__":
             files.append(file)
             plt.close(fig)
 
-    files1, files2 = write_losses(u_obs, us, mus, SAVE_DIR, losses, l = lambda1, TEXT = False, PLOT = False, fig_pass = figs)
+    files1, files2 = write_losses(u_obs, us, mus, SAVE_DIR, losses, l = lambda1, TEXT = False, PLOT = True, fig_pass = figs, SAVE_PATH = SAVE_DIR)
     losses_constants_plot(mus, losses, SAVE_DIR)
 
     print("\n\nGenerating GIFs...\n\n")
