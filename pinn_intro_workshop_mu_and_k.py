@@ -16,6 +16,52 @@ else:
 torch.set_default_device(device)
 print(f"\nUsing device: {device}\n\n")
 
+from forced_spring_sol import forced_damped_spring
+
+def plot_initial(t_obs_np, u_obs_np, t_physics_np, sys_params, SAVE_DIR):
+
+    u_physics_np = forced_damped_spring(t_physics_np,
+                                        sys_params['m'],
+                                        sys_params['b'],
+                                        sys_params['k'],
+                                        sys_params['f0'],
+                                        sys_params['ffreq'],
+                                        sys_params['x0'],
+                                        sys_params['x_0'])
+
+    t = np.linspace(0,1,10**5)
+    applied_force = sys_params['f0']*np.cos(sys_params['ffreq']*t)
+    u = forced_damped_spring(t,
+                            sys_params['m'],
+                            sys_params['b'],
+                            sys_params['k'],
+                            sys_params['f0'],
+                            sys_params['ffreq'],
+                            sys_params['x0'],
+                            sys_params['x_0'])
+
+    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, 
+                        subplot_titles=( "Initial points", "Input force and system's output"))
+
+    fig.add_trace(
+        go.Scatter(x=t_obs_np, y=u_obs_np, mode='markers', name = f"PINN observation points (measured data - {len(t_obs_np)} points) "),
+        row=1, col=1
+        )
+    fig.add_trace(
+        go.Scatter(x=t_physics_np, y=u_physics_np, name = f"PINN physics points (not measured data - {len(t_physics_np)} points)"),
+        row=1, col=1
+        )
+
+    fig.add_trace(
+        go.Scatter(x=t, y=applied_force, name = "Input force"),
+        row=2, col=1
+        )
+    fig.add_trace(
+        go.Scatter(x=t, y=sys_params['f0']*u, name = f"System output position (multiplied by {sys_params['f0']})"),
+        row=2, col=1
+        )
+
+    fig.write_html(os.path.join(SAVE_DIR,"Initial.html"))
 
 
 def losses_constants_plot(mus, losses, SAVE_DIR, d = 2, w0 = 20):
@@ -109,6 +155,7 @@ def save_gif_PIL(outfile, files, fps=5, loop=0):
 
 def exact_solution(d, w0, t):
     "Defines the analytical solution to the under-damped harmonic oscillator problem above."
+
     assert d < w0
     w = np.sqrt(w0**2-d**2)
     phi = np.arctan(-d/w)
@@ -116,6 +163,7 @@ def exact_solution(d, w0, t):
     cos = torch.cos(phi+w*t)
     exp = torch.exp(-d*t)
     u = exp*2*A*cos
+
     return u
 
 def DIRs(path_name = 'save_imgs', path_gif_name = 'gif'):
@@ -156,30 +204,7 @@ class FCN(nn.Module):
         x = self.fce(x)
         return x
 
-def plot_3D(us, mus, losses):
-
-    z = np.array(powers).T
-    y = time.squeeze()
-    x = np.arange(0, z.shape[-1], 1, dtype=int)
-
-    fig = go.Figure(data=[go.Surface(z=z, x=x, y=y)])
-    fig.update_layout(  title='3D', autosize=True, 
-                        width=1800, height=800, 
-                        xaxis_title="Manouver", 
-                        yaxis_title="Time (s)", 
-                        margin=dict(l=65, r=50, b=65, t=90))
-
-    fig.update_scenes(  xaxis_title_text='Manouvers',  
-                        yaxis_title_text='Time (s)',  
-                        zaxis_title_text='Power (W)')
-
-    if SAVE is not None:
-        save_path = os.path.join(os.getcwd(),SAVE + ".html")
-        fig.write_html(save_path)
-    else:
-        fig.show()
-
-def write_losses(u_obs, us, mus, FINAL_DIR, losses, l = 10**4, TEXT = False, PLOT = True, fig_pass = 13, SAVE_PATH = r'.'):
+def write_losses(u_obs, us, mus, FINAL_DIR, losses, F, l = 10**4, TEXT = False, PLOT = True, fig_pass = 13, SAVE_PATH = r'.'):
     SAVE_DIR = os.path.join(SAVE_PATH,'figures')
     try:
         os.mkdir(SAVE_DIR)
@@ -249,7 +274,7 @@ def write_losses(u_obs, us, mus, FINAL_DIR, losses, l = 10**4, TEXT = False, PLO
                 plt.legend()
 
                 plt.subplot(4,1,4)
-                plt.plot((d2udt2 + mu*dudt + k*u_phy_hat)**2, label="|u2_dt2 + mu*u_dt + k*u_pinn|^2")
+                plt.plot((d2udt2 + mu*dudt + k*u_phy_hat - F)**2, label="|u2_dt2 + mu*u_dt + k*u_pinn - F|^2")
                 plt.legend()
 
                 plt.xlabel(f"Training points ({len(d2udt2)})")
@@ -336,38 +361,63 @@ if __name__ == "__main__":
     plt.rcParams['figure.figsize'] = [12, 5]
     torch.manual_seed(123)
 
-    d, w0 = 2, 20
+    # System dynamics
+    d, w0 = 2, 40
+    noise = 0.04
+
+    # Imposing force
+    F0 = 1000 # Amplitude (in the signal will be divided by w0**2)
+    W = 33  # Angular frequency
+
+    w_max = np.max([w0, W])
+
+    # System initial conditions
+    x0 = 1
+    x_0 = 0
+
+    sys_params = {
+                    'f0': F0,
+                    'ffreq' : W,
+                    'x0': x0,
+                    'x_0': x_0,
+                    'm': 1,
+                    'b' : 2*d,
+                    'k':w0**2,
+    }
 
     # Error related to constants of the system 'guess'
     MU, SIG = 0, 10
     # Shuold be at least 2 for Nyquist, but can be higher for safety results
     K_freq = 2*15
 
-    N_obs_points = K_freq*int(w0/6)             # Related to maximum frequency of the signal
+    N_obs_points = K_freq*int(w_max/6)             # Related to maximum frequency of the signal
     N_phy_points = K_freq*N_obs_points          # Related to physics loss and continuity ( smoothness ) of the PINN solution
     neurons = 32                                # Related to maximum frequency too?  NO apperantly 
     layers = 3
-    
+
     t_obs = torch.rand(N_obs_points).view(-1,1)
-    u_obs = exact_solution(d, w0, t_obs) + 0.04*torch.randn_like(t_obs)
-    u_obs_np = u_obs.detach().cpu().numpy()
     t_obs_np = t_obs.detach().cpu().numpy()
+
+    u_obs_np = forced_damped_spring(t_obs_np, m = 1, b = 2*d, k = w0**2, f0 = F0, ffreq = W, x0 = x0, x_0 = x_0, eps = 10**-8) + noise*np.random.randn(t_obs_np.shape[0],t_obs_np.shape[1])
+    u_obs = torch.tensor(u_obs_np)
+    
     t_test = torch.linspace(0,1,1000).view(-1,1)
     t_test_np = t_test.detach().cpu().numpy()
-    u_exact = exact_solution(d, w0, t_test)
+
+    u_exact = torch.tensor(forced_damped_spring(t_test_np, m = 1, b = 2*d, k = w0**2, f0 = F0, ffreq = W, x0 = x0, x_0 = x_0, eps = 10**-8))
 
     print(f"True value of mu: {2*d}")
     print(f"True value of k: {w0**2}\n\n")
 
     lr = torch.var(u_obs).item()**2/K_freq                # I guess it is related to the signal variance
-    lambda1 = int(10**( (w0/6) + (K_freq+layers)/K_freq ))       # Related to maximum frequency of the signal, cuz thz higher the frequency the higher the derivative !
+    lambda1 = int(10**( (w_max/6) + (K_freq+layers)/K_freq ))       # Related to maximum frequency of the signal, cuz thz higher the frequency the higher the derivative !
 
     start_mu = 2*d + np.random.normal(MU, SIG, 1)[0]
     start_k = w0**2 + np.random.normal(MU, SIG, 1)[0]
 
     # Related to the learning rate and initial guess error steps and some confidence (99,7% 3*sig ?)
-    EPOCHS = int(4.5*SIG/lr)   
-
+    EPOCHS = int(4.5*SIG/lr) 
+    EPOCHS = 1000
     figs = int(EPOCHS/100)
 
     SAVE_DIR, SAVE_GIF_DIR = DIRs(path_name = f'mu0_{start_mu:.1f}_k0_{start_k:.1f}_pys_{int(N_phy_points)}_obs_{int(N_obs_points)}_iter_{int(EPOCHS/1000)}k_lr_{lr:4.2e}_lb_{lambda1:4.2e}', 
@@ -379,6 +429,10 @@ if __name__ == "__main__":
 
     # define training points over the entire domain, for the physics loss
     t_physics = torch.linspace(0,1,N_phy_points).view(-1,1).requires_grad_(True)
+    t_physics_np = t_physics.detach().cpu().numpy()
+ 
+    Force = torch.tensor( sys_params['f0'] * np.cos(sys_params['ffreq']*t_physics_np)/sys_params['m'] )
+    Force_np = Force.detach().cpu().numpy().squeeze()
 
     # train the PINN
     mu, k = 2*d, w0**2
@@ -392,8 +446,13 @@ if __name__ == "__main__":
     files = []
     losses=[]
 
+    plot_initial(   t_obs_np.squeeze(), 
+                    u_obs_np.squeeze(), 
+                    t_physics_np.squeeze(), 
+                    sys_params,
+                    SAVE_DIR)
+    
     # add mu to the optimiser
-    # TODO: write code here
     optimiser = torch.optim.Adam(list(pinn.parameters())+[mu_nn, k_nn],lr=lr)
 
     for i in tqdm(range(EPOCHS)):
@@ -406,7 +465,10 @@ if __name__ == "__main__":
         u_phy_hat = pinn(t_physics)
         dudt = torch.autograd.grad(u_phy_hat, t_physics, torch.ones_like(u_phy_hat), create_graph=True)[0]
         d2udt2 = torch.autograd.grad(dudt, t_physics, torch.ones_like(dudt), create_graph=True)[0]
-        loss1 = torch.mean((d2udt2 + mu_nn*dudt + k_nn*u_phy_hat)**2)
+        # loss1 = torch.mean((d2udt2 + mu_nn*dudt + k_nn*u_phy_hat)**2)
+
+        # Now with the imposed force term
+        loss1 = torch.mean((d2udt2 + mu_nn*dudt + k_nn*u_phy_hat - Force)**2)
 
         # compute data loss
         u_obs_hat = pinn(t_obs)
@@ -447,7 +509,7 @@ if __name__ == "__main__":
             files.append(file)
             plt.close(fig)
 
-    files1, files2 = write_losses(u_obs, us, mus, SAVE_DIR, losses, l = lambda1, TEXT = False, PLOT = True, fig_pass = figs, SAVE_PATH = SAVE_DIR)
+    files1, files2 = write_losses(u_obs, us, mus, SAVE_DIR, losses, Force_np, l = lambda1, TEXT = False, PLOT = True, fig_pass = figs, SAVE_PATH = SAVE_DIR)
     losses_constants_plot(mus, losses, SAVE_DIR, d, w0)
 
     print("\n\nGenerating GIFs...\n\n")
