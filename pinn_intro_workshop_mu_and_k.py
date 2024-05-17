@@ -48,7 +48,7 @@ def plot_initial(t_obs_np, u_obs_np, t_physics_np, sys_params, SAVE_DIR):
         row=1, col=1
         )
     fig.add_trace(
-        go.Scatter(x=t_physics_np, y=u_physics_np, name = f"PINN physics points (not measured data - {len(t_physics_np)} points)"),
+        go.Scatter(x=t_physics_np, y=np.zeros_like(t_physics_np), mode='markers', name = f"PINN physics points (not measured data - {len(t_physics_np)} points)"),
         row=1, col=1
         )
 
@@ -62,7 +62,6 @@ def plot_initial(t_obs_np, u_obs_np, t_physics_np, sys_params, SAVE_DIR):
         )
 
     fig.write_html(os.path.join(SAVE_DIR,"Initial.html"))
-
 
 def losses_constants_plot(mus, losses, SAVE_DIR, d = 2, w0 = 20):
     plt.rcParams['figure.figsize'] = [18, 9]
@@ -258,22 +257,27 @@ def write_losses(u_obs, us, mus, FINAL_DIR, losses, F, l = 10**4, TEXT = False, 
         
         if PLOT: 
             if i % fig_pass ==0:
-                fig, ax = plt.subplots(4,1)
+                fig, ax = plt.subplots(5,1)
 
                 fig.suptitle(f"Physics loss iter: {i}")
-                plt.subplot(4,1,1)
+                plt.subplot(5,1,1)
                 plt.plot(d2udt2, label="u2_dt2")
                 plt.legend()
 
-                plt.subplot(4,1,2)
+                plt.subplot(5,1,2)
                 plt.plot(mu*dudt, label=f"mu*u_dt  mu = {mu:.5f}")
                 plt.legend()
 
-                plt.subplot(4,1,3)
+                plt.subplot(5,1,3)
                 plt.plot(k*u_phy_hat, label=f"k*u  k = {k:.5f}")
                 plt.legend()
 
-                plt.subplot(4,1,4)
+                plt.subplot(5,1,4)
+                plt.plot( d2udt2 + mu*dudt + k*u_phy_hat, label="d2udt2 + mu*dudt + k*u_phy_hat")
+                plt.plot( -F, label="-F")
+                plt.legend()
+
+                plt.subplot(5,1,5)
                 plt.plot((d2udt2 + mu*dudt + k*u_phy_hat - F)**2, label="|u2_dt2 + mu*u_dt + k*u_pinn - F|^2")
                 plt.legend()
 
@@ -362,12 +366,12 @@ if __name__ == "__main__":
     torch.manual_seed(123)
 
     # System dynamics
-    d, w0 = 2, 40
-    noise = 0.04
+    d, w0 = 2, 20
+    noise = 0.0
 
     # Imposing force
-    F0 = 1000 # Amplitude (in the signal will be divided by w0**2)
-    W = 33  # Angular frequency
+    F0 = 300 # Amplitude (in the signal will be divided by w0**2)
+    W = 7*w0  # Angular frequency
 
     w_max = np.max([w0, W])
 
@@ -386,13 +390,17 @@ if __name__ == "__main__":
     }
 
     # Error related to constants of the system 'guess'
-    MU, SIG = 0, 10
+    MU, SIG = 0, 8
     # Shuold be at least 2 for Nyquist, but can be higher for safety results
     K_freq = 2*15
 
-    N_obs_points = K_freq*int(w_max/6)             # Related to maximum frequency of the signal
+    N_obs_points = K_freq*int(w_max/6)          # Related to maximum frequency of the signal
     N_phy_points = K_freq*N_obs_points          # Related to physics loss and continuity ( smoothness ) of the PINN solution
-    neurons = 32                                # Related to maximum frequency too?  NO apperantly 
+    
+    N_obs_points = 20
+    N_phy_points = 120
+
+    neurons = 80                                # Related to maximum frequency too?  NO apperantly 
     layers = 3
 
     t_obs = torch.rand(N_obs_points).view(-1,1)
@@ -409,15 +417,24 @@ if __name__ == "__main__":
     print(f"True value of mu: {2*d}")
     print(f"True value of k: {w0**2}\n\n")
 
-    lr = torch.var(u_obs).item()**2/K_freq                # I guess it is related to the signal variance
-    lambda1 = int(10**( (w_max/6) + (K_freq+layers)/K_freq ))       # Related to maximum frequency of the signal, cuz thz higher the frequency the higher the derivative !
+    # TODO: correct this idea
+    lr = 10**(-np.log(w_max))        
+    lambda1 = int(10**( np.log(w_max) + (K_freq+layers)/K_freq ))       # Related to maximum frequency of the signal, cuz thz higher the frequency the higher the derivative !
+
+    lr = 2*10**-5
+    lambda1 = 5*10**5
 
     start_mu = 2*d + np.random.normal(MU, SIG, 1)[0]
     start_k = w0**2 + np.random.normal(MU, SIG, 1)[0]
 
+    start_k = 390
+    start_mu = 7
+
     # Related to the learning rate and initial guess error steps and some confidence (99,7% 3*sig ?)
-    EPOCHS = int(4.5*SIG/lr) 
-    EPOCHS = 1000
+    EPOCHS = int(1/lr) 
+    EPOCHS = 5*10**5
+
+    # EPOCHS = 20000
     figs = int(EPOCHS/100)
 
     SAVE_DIR, SAVE_GIF_DIR = DIRs(path_name = f'mu0_{start_mu:.1f}_k0_{start_k:.1f}_pys_{int(N_phy_points)}_obs_{int(N_obs_points)}_iter_{int(EPOCHS/1000)}k_lr_{lr:4.2e}_lb_{lambda1:4.2e}', 
@@ -453,7 +470,7 @@ if __name__ == "__main__":
                     SAVE_DIR)
     
     # add mu to the optimiser
-    optimiser = torch.optim.Adam(list(pinn.parameters())+[mu_nn, k_nn],lr=lr)
+    optimiser = torch.optim.Adam(list(pinn.parameters())+[mu_nn, k_nn],lr=lr, betas=(0.95, 0.999))
 
     for i in tqdm(range(EPOCHS)):
         optimiser.zero_grad()
@@ -475,7 +492,7 @@ if __name__ == "__main__":
         loss2 = torch.mean((u_obs_hat - u_obs)**2)
 
         # backpropagate joint loss, take optimiser step
-        loss = loss1 + lambda1*loss2
+        loss = loss1 + lambda1*loss2 
         loss.backward()
         optimiser.step()
 
