@@ -390,15 +390,15 @@ if __name__ == "__main__":
     }
 
     # Error related to constants of the system 'guess'
-    MU, SIG = 0, 8
+    MU, SIG = 0, 15
     # Shuold be at least 2 for Nyquist, but can be higher for safety results
     K_freq = 2*15
 
     N_obs_points = K_freq*int(w_max/6)          # Related to maximum frequency of the signal
     N_phy_points = K_freq*N_obs_points          # Related to physics loss and continuity ( smoothness ) of the PINN solution
     
-    N_obs_points = 20
-    N_phy_points = 120
+    N_obs_points = 40
+    N_phy_points = 300
 
     neurons = 80                                # Related to maximum frequency too?  NO apperantly 
     layers = 3
@@ -427,12 +427,9 @@ if __name__ == "__main__":
     start_mu = 2*d + np.random.normal(MU, SIG, 1)[0]
     start_k = w0**2 + np.random.normal(MU, SIG, 1)[0]
 
-    start_k = 390
-    start_mu = 7
-
     # Related to the learning rate and initial guess error steps and some confidence (99,7% 3*sig ?)
     EPOCHS = int(1/lr) 
-    EPOCHS = 5*10**5
+    EPOCHS = 4*10**5
 
     # EPOCHS = 20000
     figs = int(EPOCHS/100)
