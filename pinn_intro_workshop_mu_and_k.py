@@ -3,7 +3,7 @@ import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
-from tqdm import tqdm
+from tqdm.auto import tqdm, trange
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -367,11 +367,12 @@ if __name__ == "__main__":
 
     # System dynamics
     d, w0 = 2, 20
+    mu, k = 2*d, w0**2
     noise = 0.0
 
     # Imposing force
-    F0 = 500 # Amplitude (in the signal will be divided by w0**2)
-    W = 17*w0  # Angular frequency
+    F0 = 300 # Amplitude (in the signal will be divided by w0**2)
+    W = 7*w0  # Angular frequency
 
     w_max = np.max([w0, W])
 
@@ -407,6 +408,13 @@ if __name__ == "__main__":
     u_obs_np = forced_damped_spring(t_obs_np, m = 1, b = 2*d, k = w0**2, f0 = F0, ffreq = W, x0 = x0, x_0 = x_0, eps = 10**-8) + noise*np.random.randn(t_obs_np.shape[0],t_obs_np.shape[1])
     u_obs = torch.tensor(u_obs_np)
     
+    # define training points over the entire domain, for the physics loss
+    t_physics = torch.linspace(0,1,N_phy_points).view(-1,1).requires_grad_(True)
+    t_physics_np = t_physics.detach().cpu().numpy()
+ 
+    Force = torch.tensor( sys_params['f0'] * np.cos(sys_params['ffreq']*t_physics_np)/sys_params['m'] )
+    Force_np = Force.detach().cpu().numpy().squeeze()
+
     t_test = torch.linspace(0,1,1000).view(-1,1)
     t_test_np = t_test.detach().cpu().numpy()
 
@@ -419,7 +427,7 @@ if __name__ == "__main__":
     lr = 10**(-np.log(w_max))        
     lambda1 = int(10**( np.log(w_max) + (K_freq+layers)/K_freq ))       # Related to maximum frequency of the signal, cuz thz higher the frequency the higher the derivative !
 
-    lr = 6*10**-4
+    lr = 9*10**-5
     lambda1 = 5*10**5
 
     # Related to the learning rate and initial guess error steps and some confidence (99,7% 3*sig ?)
@@ -436,46 +444,45 @@ if __name__ == "__main__":
     start_mu = 2*d + np.random.normal(MU, SIG, 1)[0]
     start_k = w0**2 + np.random.normal(MU, SIG, 1)[0]
 
-    # start_k = 413
-    # start_mu = -5
+    start_k = 406.1
+    start_mu = -0.3
 
 
     SAVE_DIR, SAVE_GIF_DIR = DIRs(path_name = f'mu0_{start_mu:.1f}_k0_{start_k:.1f}_pys_{int(N_phy_points)}_obs_{int(N_obs_points)}_iter_{int(EPOCHS/1000)}k_lr_{lr:4.2e}_lb_{lambda1:4.2e}', 
                                     path_gif_name = 'gif')
+    plot_initial(   t_obs_np.squeeze(), 
+                u_obs_np.squeeze(), 
+                t_physics_np.squeeze(), 
+                sys_params,
+                SAVE_DIR)
+
+
+
+
+
 
     # define a neural network to train
     # N_INPUT, N_OUTPUT, N_HIDDEN, N_LAYERS
     pinn = FCN(1,1,neurons,layers)
 
-    # define training points over the entire domain, for the physics loss
-    t_physics = torch.linspace(0,1,N_phy_points).view(-1,1).requires_grad_(True)
-    t_physics_np = t_physics.detach().cpu().numpy()
- 
-    Force = torch.tensor( sys_params['f0'] * np.cos(sys_params['ffreq']*t_physics_np)/sys_params['m'] )
-    Force_np = Force.detach().cpu().numpy().squeeze()
-
-    # train the PINN
-    mu, k = 2*d, w0**2
-
     # treat mu as a learnable parameter
     mu_nn = torch.nn.Parameter(torch.tensor([float(start_mu)], requires_grad=True))
     k_nn = torch.nn.Parameter(torch.tensor([float(start_k)], requires_grad=True))
-
-    mus = []
-    us = []
-    files = []
-    losses=[]
-
-    plot_initial(   t_obs_np.squeeze(), 
-                    u_obs_np.squeeze(), 
-                    t_physics_np.squeeze(), 
-                    sys_params,
-                    SAVE_DIR)
     
     # add mu to the optimiser
     optimiser = torch.optim.Adam(list(pinn.parameters())+[mu_nn, k_nn],lr=lr, betas=(0.95, 0.999))
 
-    for i in tqdm(range(EPOCHS)):
+
+
+
+
+    
+    mus = []
+    us = []
+    files = []
+    losses=[]
+    bar = trange(EPOCHS)
+    for i in bar:
         optimiser.zero_grad()
 
         # compute each term of the PINN loss function above
@@ -514,8 +521,11 @@ if __name__ == "__main__":
                         loss2.item(),
                         loss.item()])
 
+        
         # plot the result as training progresses
         if i % figs == 0:
+            tqdm.write(f"{i}\n>>Physics: {losses[-1][0]:.3f} >>Data: {losses[-1][1]:.3f} >>Total: {losses[-1][2]:.3f}\n>>Mu: {mus[-1][0]:.3f} >>k: {mus[-1][1]:.3f}\n")
+
             fig = plt.figure(figsize=(12,5))
             # fig.set_size_inches(18.5, 10.5)
             u = pinn(t_test).detach()
