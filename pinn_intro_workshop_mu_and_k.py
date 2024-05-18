@@ -370,8 +370,8 @@ if __name__ == "__main__":
     noise = 0.0
 
     # Imposing force
-    F0 = 300 # Amplitude (in the signal will be divided by w0**2)
-    W = 7*w0  # Angular frequency
+    F0 = 500 # Amplitude (in the signal will be divided by w0**2)
+    W = 17*w0  # Angular frequency
 
     w_max = np.max([w0, W])
 
@@ -389,16 +389,14 @@ if __name__ == "__main__":
                     'k':w0**2,
     }
 
-    # Error related to constants of the system 'guess'
-    MU, SIG = 0, 8
     # Shuold be at least 2 for Nyquist, but can be higher for safety results
     K_freq = 2*15
 
     N_obs_points = K_freq*int(w_max/6)          # Related to maximum frequency of the signal
     N_phy_points = K_freq*N_obs_points          # Related to physics loss and continuity ( smoothness ) of the PINN solution
     
-    N_obs_points = 20
-    N_phy_points = 120
+    N_obs_points = 50
+    N_phy_points = 300
 
     neurons = 80                                # Related to maximum frequency too?  NO apperantly 
     layers = 3
@@ -421,21 +419,26 @@ if __name__ == "__main__":
     lr = 10**(-np.log(w_max))        
     lambda1 = int(10**( np.log(w_max) + (K_freq+layers)/K_freq ))       # Related to maximum frequency of the signal, cuz thz higher the frequency the higher the derivative !
 
-    lr = 2*10**-5
+    lr = 6*10**-4
     lambda1 = 5*10**5
-
-    start_mu = 2*d + np.random.normal(MU, SIG, 1)[0]
-    start_k = w0**2 + np.random.normal(MU, SIG, 1)[0]
-
-    start_k = 390
-    start_mu = 7
 
     # Related to the learning rate and initial guess error steps and some confidence (99,7% 3*sig ?)
     EPOCHS = int(1/lr) 
-    EPOCHS = 5*10**5
+    EPOCHS = 6*10**4
 
     # EPOCHS = 20000
     figs = int(EPOCHS/100)
+
+    # Error related to constants of the system 'guess'
+    # to have 95% confidence the model can solve in the amount of steps provided and supposing
+    # it goes in the bad direction for half the way 2*sigma ( think how to solve it )
+    MU, SIG = 0, EPOCHS*lr/2
+    start_mu = 2*d + np.random.normal(MU, SIG, 1)[0]
+    start_k = w0**2 + np.random.normal(MU, SIG, 1)[0]
+
+    # start_k = 413
+    # start_mu = -5
+
 
     SAVE_DIR, SAVE_GIF_DIR = DIRs(path_name = f'mu0_{start_mu:.1f}_k0_{start_k:.1f}_pys_{int(N_phy_points)}_obs_{int(N_obs_points)}_iter_{int(EPOCHS/1000)}k_lr_{lr:4.2e}_lb_{lambda1:4.2e}', 
                                     path_gif_name = 'gif')
