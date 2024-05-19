@@ -270,6 +270,7 @@ def write_losses(u_obs, us, mus, FINAL_DIR, losses, F, l = 10**4, TEXT = False, 
         L2s.append(L2)
         
         if PLOT: 
+
             if i % fig_pass ==0:
                 fig, ax = plt.subplots(5,1)
 

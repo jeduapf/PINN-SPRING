@@ -3,6 +3,9 @@ import numpy as np
 import torch
 from ze.utils import *
 from ze.torch_utils import FCN
+import csv
+import os
+
 
 class PINN():
 
@@ -14,9 +17,11 @@ class PINN():
         self.SAVE_GIF_DIR = control_params['SAVE_GIF_DIR']
         self.TEXT = control_params['TEXT']
         self.FIGS = control_params['FIGS']
+        self.SEARCH = control_params['SEARCH']
 
         # ---------------------------------------- System ----------------------------------------
         # System parameters
+        self.sys_params = system_params
         self.t = system_params["t"] # Linspace of time points (Maximum amount of points)
         self.m = system_params["m"]
         self.b = system_params["b"]
@@ -93,11 +98,11 @@ class PINN():
     def physics_loss(self, t_physics, force):
         # PHYSICS LOSS
         u_phy_hat = self.pinn(t_physics)
-        dudt = torch.autograd.grad( u_phy_hat, self.t_physics, 
+        dudt = torch.autograd.grad( u_phy_hat, t_physics, 
                                     torch.ones_like(u_phy_hat), 
                                     create_graph=True)[0]
 
-        d2udt2 = torch.autograd.grad(   dudt, self.t_physics, 
+        d2udt2 = torch.autograd.grad(   dudt, t_physics, 
                                         torch.ones_like(dudt), 
                                         create_graph=True)[0]
 
@@ -117,41 +122,50 @@ class PINN():
 
         return torch.mean((u_obs_hat - u_obs)**2) 
 
-    def step(self, i):
+    def stop(self):
+        return self.losses[-1][2] < 10**-3*self.losses[0][2] and torch.abs(self.constants[-1][0]/self.b_torch - 1) < 10**-2 and torch.abs(self.constants[-1][1]/self.k_torch - 1) < 10**-2
+
+    def dashboard(self, i):
+        if self.TEXT:
+            tqdm.write(f"{i}\n>>Physics: {self.losses[-1][0]:.3f} >>Data: {self.losses[-1][1]:.3f} >>Total: {self.losses[-1][2]:.3f}\n>>Mu: {self.constants[-1][0]:.3f} >>k: {self.constants[-1][1]:.3f}\n")
+
+        if self.PLOT:
+            fig = plt.figure(figsize=(12,5))
+
+            # To not compute any gradients in this phase
+            with torch.no_grad():
+                self.pinn.eval()  # Evaluation mode
+                u = self.pinn(self.t_test)
+            self.pinn.train(True) # Back to trainning mode  
+
+            plt.scatter(self.t_obs_np, self.u_obs_np, label="Noisy observations", alpha=0.6)
+            plt.plot(self.t_test_np, u.detach().cpu().numpy(), label="PINN solution", color="tab:green")
+            plt.title(f"Training step {i}")
+            plt.legend()
+
+            file = os.path.join(self.SAVE_GIF_DIR,"pinn_%.8i.png"%(i+1))
+            plt.savefig(file, dpi=100, facecolor="white")
+            self.files.append(file)
+            plt.close(fig)
+
+    def step(self, i, t_physics, force):
+
         self.optimiser.zero_grad()
 
-        phy_loss = self.physics_loss(self.t_physics, self.force)
+        phy_loss = self.physics_loss(t_physics, force)
         dat_loss = self.data_loss(self.t_obs, self.u_obs)
         loss = phy_loss + self.regularization*dat_loss
 
         loss.backward()
+
         self.optimiser.step()
 
         self.losses.append([phy_loss.item(),
                             dat_loss.item(),
                             loss.item()])
 
-        # plot the result as training progresses
-        if i % self.FIGS == 0:
-
-            if self.TEXT:
-                tqdm.write(f"{i}\n>>Physics: {self.losses[-1][0]:.3f} >>Data: {self.losses[-1][1]:.3f} >>Total: {self.losses[-1][2]:.3f}\n>>Mu: {self.constants[-1][0]:.3f} >>k: {self.constants[-1][1]:.3f}\n")
-
-            if self.PLOT:
-                fig = plt.figure(figsize=(12,5))
-
-                u = self.pinn(self.t_test)
-                plt.scatter(self.t_obs_np, self.u_obs_np, label="Noisy observations", alpha=0.6)
-                plt.plot(self.t_test_np, u.detach().cpu().numpy(), label="PINN solution", color="tab:green")
-                plt.title(f"Training step {i}")
-                plt.legend()
-
-                file = os.path.join(self.SAVE_GIF_DIR,"pinn_%.8i.png"%(i+1))
-                plt.savefig(file, dpi=100, facecolor="white")
-                self.files.append(file)
-                plt.close(fig)
-
-    def train(self, eps = 8*10**-4):
+    def train(self):
+        self.pinn.train() # Set model to trainning mode
 
         if self.FIGS is None:
             self.FIGS = int(self.epochs/100)
@@ -159,20 +173,48 @@ class PINN():
         if self.batch is None:
             bar = trange(self.epochs)
             for i in bar:
-                self.step(i)
+                self.step(i, self.t_physics, self.force)
 
-                if self.losses[-1][0] + self.losses[-1][1] < eps*self.losses[0][2] and torch.abs(self.constants[-1][0] - self.b_torch) < 100*eps and torch.abs(self.constants[-1][1] - self.k_torch) < 100*eps:
+                # plot the result as training progresses
+                if i % self.FIGS == 0:
+                    self.dashboard(i)
+
+                # Early stopping in case of convergency
+                if self.stop():
                     print("\n\n\t\t Converged, finishing early !\n\n")
                     break
+
+        # ONLY APPLY BATCH TO PHYSICS POINTS 
         else:
-            assert isinstance(self.batch,int) and self.batch > 0 , "Batch size must be a positive integer..."
-            pass
+            assert isinstance(self.batch,int) and self.batch > 0 and self.batch < self.physics_points, "Batch size must be a positive integer smaller than the number of physics points..."
+            p = np.linspace(0, self.physics_points - 1, self.physics_points, dtype = int)
 
+            bar = trange(self.epochs)
+            for i in bar:
 
+                for _i in range(0, self.physics_points, self.batch):
+                    indices = np.random.choice(p, size=self.batch, replace=False)
+                    self.step(i, self.t_physics[indices], self.force[indices])
+
+                # plot the result as training progresses
+                if i % self.FIGS == 0:
+                    self.dashboard(i)
+
+                # Early stopping in case of convergency
+                if self.stop():
+                    print("\n\n\t\t Converged, finishing early !\n\n")
+                    break
 
     def save_plots(self):
+
+        if self.batch is not None:
+            p = np.linspace(0, self.physics_points - 1, self.batch, dtype = int)
+            force = self.force_np[p]
+        else:
+             force = self.force_np
+
         files1, files2 = write_losses(  self.u_obs, self.derivatives, self.constants, 
-                                        self.SAVE_DIR, self.losses, self.force_np, 
+                                        self.SAVE_DIR, self.losses, force, 
                                         l = self.regularization, TEXT = False, PLOT = True, 
                                         fig_pass = self.FIGS, SAVE_PATH = self.SAVE_DIR)
 
@@ -184,5 +226,26 @@ class PINN():
         save_gif_PIL(os.path.join(self.SAVE_DIR,"loss2.gif"), files2, fps=60, loop=0)
 
     def predict(self, t):
+        with torch.no_grad():
+            self.pinn.eval()
+            return self.pinn(t).detach().cpu().numpy().squeeze()
 
-        return self.pinn(t)
+    def save_results(self):
+        arr_loss = np.array(self.losses)
+        u_hat = self.predict(torch.tensor(self.t, dtype=torch.float32).view(-1,1))
+        u_star = forced_damped_spring(self.t, self.sys_params)
+
+        fields=[self.learning_rate,
+                arr_loss.shape[0],
+                self.layers, 
+                self.neurons, 
+                np.abs(self.k_guess.item()/self.k - 1),
+                np.abs(self.mu_guess.item()/self.b - 1),
+                np.sqrt( np.mean( np.abs( u_hat - u_star)**2 ) ),
+                arr_loss[:,0],
+                arr_loss[:,1],
+                arr_loss[:,2]]
+
+        with open(os.path.join(self.SAVE_DIR,'results.csv'), 'a') as file:
+            writer = csv.writer(file)
+            writer.writerow(fields)
