@@ -151,7 +151,7 @@ class PINN():
                 self.files.append(file)
                 plt.close(fig)
 
-    def train(self, eps = 6*10**-4):
+    def train(self, eps = 8*10**-4):
 
         if self.FIGS is None:
             self.FIGS = int(self.epochs/100)
@@ -161,7 +161,7 @@ class PINN():
             for i in bar:
                 self.step(i)
 
-                if self.losses[-1][0] + self.losses[-1][1] < eps*self.losses[0][2] and torch.abs(self.constants[-1][0] - self.b_torch) < eps and torch.abs(self.constants[-1][1] - self.k_torch) < eps:
+                if self.losses[-1][0] + self.losses[-1][1] < eps*self.losses[0][2] and torch.abs(self.constants[-1][0] - self.b_torch) < 100*eps and torch.abs(self.constants[-1][1] - self.k_torch) < 100*eps:
                     print("\n\n\t\t Converged, finishing early !\n\n")
                     break
         else:

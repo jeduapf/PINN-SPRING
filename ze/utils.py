@@ -87,22 +87,15 @@ def DIRs(path_name = 'save_imgs', path_gif_name = 'gif'):
 
     return SAVE_DIR, SAVE_GIF_DIR
 
-def DIRs_training(path_name = 'save_imgs', path_gif_name = 'gif'):
-    
-    current_dir = os.getcwd()
-    SAVE_DIR = os.path.join(current_dir,path_name)
-    try:
-        os.mkdir(SAVE_DIR)
-    except:
-        pass
+def read_files_list(PATH):
+    files = []
+    for x in os.listdir(PATH):
+        files.append(os.path.join(PATH,x))
 
-    SAVE_GIF_DIR = os.path.join(SAVE_DIR,path_gif_name)
-    try:
-        os.mkdir(SAVE_GIF_DIR)
-    except:
-        pass
+    return files[::5]
 
-    return SAVE_DIR, SAVE_GIF_DIR
+def gif_maker(PATH):
+    save_gif_PIL(os.path.join(os.getcwd(),"g.gif"), read_files_list(PATH), fps=5, loop=0)
 
 def plot_initial(t_obs_np, u_obs_np, t_physics_np, sys_params, SAVE_DIR):
 
