@@ -251,9 +251,9 @@ class PINN():
         print()
         print(f"Total iterations: {int(arr_loss.shape[0])}")
         print(f"K value from pinn: {self.k_guess.item():.3f}")
-        print(f"K relative error from pinn: {(self.k_guess.item()/self.k - 1)*100:.3f}%")
+        print(f"K relative error from pinn: {np.abs((self.k_guess.item()/self.k - 1))*100:.3f}%")
         print(f"Mu value from pinn: {self.mu_guess.item():.3f}")
-        print(f"Mu relative error from pinn: {(self.mu_guess.item()/self.b - 1)*100:.3f}%")
+        print(f"Mu relative error from pinn: {np.abs((self.mu_guess.item()/self.b - 1))*100:.3f}%")
         print(f"Mean error of all {int(len(u_star))} points in function: {np.sqrt( np.mean( np.abs( u_hat - u_star)**2 ) ):.4f}")
         print()
 
@@ -274,9 +274,9 @@ class PINN():
         print()
         print(f"Total iterations: {int(consts.shape[0])}")
         print(f"K value from pinn: {self.k_guess.item():.3f}")
-        print(f"K relative error from pinn: {(self.k_guess.item()/self.k - 1)*100:.3f}%")
+        print(f"K relative error from pinn: {np.abs((self.k_guess.item()/self.k - 1))*100:.3f}%")
         print(f"Mu value from pinn: {self.mu_guess.item():.3f}")
-        print(f"Mu relative error from pinn: {(self.mu_guess.item()/self.b - 1)*100:.3f}%")
+        print(f"Mu relative error from pinn: {np.abs((self.mu_guess.item()/self.b - 1))*100:.3f}%")
         print(f"Mean error of all {int(len(u_star))} points in function: {np.sqrt( np.mean( np.abs( u_hat - u_star)**2 ) ):.4f}")
         print()
 
@@ -410,7 +410,7 @@ def monte_carlo(N, d = 2, w0 =  20, Harmonic = 3):
                             "layers": 3,
                             "learning_rate": 10**-3.5,
                             "regularization": 5*10**5,
-                            "epochs": 8*10**4,
+                            "epochs": 8*10**2,
                             "batch": None,
                             "k_guess": 0.0,
                             "mu_guess": 0.0}

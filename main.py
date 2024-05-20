@@ -1,4 +1,5 @@
 from ze import *
+from tqdm.auto import tqdm, trange
 
 if __name__ == "__main__":
     set_cuda()
@@ -13,9 +14,10 @@ if __name__ == "__main__":
     # file = "results.csv"
     # hyper_dict = interpret_hyperparameters(PATH, file)
 
-    N = 20
-    Ds = [2,5]
-    Ws = [20,40,80]
+    N = 3
+    H = 3    
+    Ds = [2]
+    Ws = [20,40]
 
     combinations = []
     for i in range(len(Ds)):
@@ -23,5 +25,5 @@ if __name__ == "__main__":
             combinations.append((Ds[i], Ws[j]))
 
     for (d,w0) in combinations:
-        print(f"\nd: {d} \t w0: {w0}\n")
-        monte_carlo(2, d = 2, w0 =  20, Harmonic = 3)
+        print(f"\n\t\t-------------------------------d: {d} - w0: {w0}-------------------------------\n")
+        monte_carlo(N, d, w0, H)
