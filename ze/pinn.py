@@ -403,14 +403,14 @@ def monte_carlo(N, d = 2, w0 =  20, Harmonic = 3):
                             "x_0": 0}
 
         pinn_params = {     "physics_points": 500, 
-                            "observation_points": 60, 
+                            "observation_points": 100, 
                             # "physics_points": 2*system_params["W"], # Acording to Nyquist f_sampling >= f_max, but to be better lets take f_sampling = 2*2*pi*f_max = 2*W
                             # "observation_points": 2*system_params["W"]/5, # Let's get 20% of physics points
                             "neurons": 80,
                             "layers": 3,
                             "learning_rate": 10**-3.5,
                             "regularization": 5*10**5,
-                            "epochs": 8*10**2,
+                            "epochs": 8*10**4,
                             "batch": None,
                             "k_guess": 0.0,
                             "mu_guess": 0.0}

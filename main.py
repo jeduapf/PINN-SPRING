@@ -14,10 +14,12 @@ if __name__ == "__main__":
     # file = "results.csv"
     # hyper_dict = interpret_hyperparameters(PATH, file)
 
-    N = 3
+    N = 50
     H = 3    
     Ds = [2]
-    Ws = [20,40]
+    Ws = [20,40,80,160,320] # From 80  ahead data points are insufficient accordint to Nyquist
+    # Data points = 100
+    # Physics points = 500
 
     combinations = []
     for i in range(len(Ds)):
