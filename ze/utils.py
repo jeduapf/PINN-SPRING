@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import torch
 from tqdm import tqdm
 import csv
+import re
 
 def forced_damped_spring(t, system_params, eps = 10**-9):
     # System parameters
@@ -420,3 +421,78 @@ def interpret_hyperparameters(PATH, file):
     fig.write_html(f"{os.path.join(PATH,'errors')}.html")
 
     return df
+
+def ellipse(x_center=0, y_center=0, ax1 = [1, 0],  ax2 = [0,1], a=1, b =1,  N=100):
+   # x_center, y_center the coordinates of ellipse center
+   # ax1 ax2 two orthonormal vectors representing the ellipse axis directions
+   # a, b the ellipse parameters
+   if np.linalg.norm(ax1) != 1 or np.linalg.norm(ax2) != 1:
+       raise ValueError('ax1, ax2 must be unit vectors')
+   if  abs(np.dot(ax1, ax2)) > 1e-06:
+       raise ValueError('ax1, ax2 must be orthogonal vectors')
+   #rotation matrix   
+   R = np.array([ax1, ax2]).T
+   if np.linalg.det(R) <0: 
+       raise ValueError("the det(R) must be positive to get a  positively oriented ellipse reference frame")
+   t = np.linspace(0, 2*np.pi, N)
+   #ellipse parameterization with respect to a system of axes of directions a1, a2
+   xs = a * np.cos(t)
+   ys = b * np.sin(t)
+   
+   # coordinate of the  ellipse points with respect to the system of axes [1, 0], [0,1] with origin (0,0)
+   xp, yp = np.dot(R, [xs, ys])
+   x = xp + x_center 
+   y = yp + y_center
+   return x, y
+
+def monte_carlo_viz(PATH, f):
+
+    # Val_error, true_b, true_k, pinn_b, pinn_k
+    df = pd.read_csv(os.path.join(PATH,f), header = None)
+    better_list = []
+    for i in range(df.shape[0]) :
+        num = re.findall(r'[-0-9]+\.?[0-9]+|[0-9]+\.?[0-9]+', df.iloc[i,3])
+        init_b = float(num[0])
+        last_b = float(num[-1])
+
+        num = re.findall(r'[-0-9]+\.?[0-9]+|[0-9]+\.?[0-9]+', df.iloc[i,4])
+        init_k = float(num[0])
+        last_k = float(num[-1])
+
+        better_list.append([df.iloc[i,0], df.iloc[i,1], df.iloc[i,2], init_b, init_k, last_b, last_k])
+
+    arr = np.array(better_list)
+    inits_b = arr[:,3]
+    inits_k = arr[:,4]
+    lasts_b = arr[:,5]
+    lasts_k = arr[:,6]
+
+    x = inits_b # b
+    y = inits_k # k
+    z = -1*np.ones(inits_b.shape) # Learning rate
+
+    x_ = lasts_b # b
+    y_ = lasts_k # k
+    z_ = np.ones(inits_b.shape) # Learning rate
+
+    sigma_2 = 10**-3.5*8*10**4 
+    p = better_list[0][1]/np.sqrt(better_list[0][2])
+
+    fig = go.Figure(data=[go.Scatter(x=x, y=y, mode='markers', name="Initial iteration")])
+    fig.add_trace(go.Scatter(x=x_, y=y_, mode='markers', name="Final iteration"))
+    x_e, y_e = ellipse(x_center=better_list[0][1], y_center=better_list[0][2], a=sigma_2, b = sigma_2*p)
+    x_e_good, y_e_good = ellipse(x_center=better_list[0][1], y_center=better_list[0][2], a=better_list[0][1]*0.01, b = better_list[0][2]*0.01)
+    fig.add_trace(go.Scatter(x=x_e, y=y_e, mode='lines', name="Initial", opacity=0.9))
+    fig.add_trace(go.Scatter(x=x_e_good, y=y_e_good, mode='lines', name="Good", opacity=0.9))
+
+    fig.update_layout(  title=f'Monte carlo of {len(better_list)} points', autosize=False,
+                        xaxis_title="b",
+                        yaxis_title="k",
+                        width=1400, height=700,
+                        showlegend=True)
+
+
+    fig.write_html(os.path.join(PATH, f[:-4]+'.html'))
+
+    return better_list
+

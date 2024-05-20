@@ -261,16 +261,17 @@ class PINN():
             writer = csv.writer(file)
             writer.writerow(fields)
 
+    # TODO: check if JSON is saving and READING the way I want
     def save_monte_carlo(self, pinn_params):
         u_hat = self.predict(torch.tensor(self.t, dtype=torch.float32).view(-1,1))
         u_star = forced_damped_spring(self.t, self.sys_params)
         consts = np.array(self.constants)
 
-        fields=[np.sqrt( np.mean( np.abs( u_hat - u_star)**2 ) ),
-                self.b, 
-                self.k,
-                consts[:,0],
-                consts[:,1]]
+        fields={'val_error': np.sqrt( np.mean( np.abs( u_hat - u_star)**2 ) ),
+                'true_b':self.b, 
+                'true_k':self.k,
+                'pinn_b':consts[:,0],
+                'pinn_b':consts[:,1]}
         print()
         print(f"Total iterations: {int(consts.shape[0])}")
         print(f"K value from pinn: {self.k_guess.item():.3f}")
@@ -280,9 +281,8 @@ class PINN():
         print(f"Mean error of all {int(len(u_star))} points in function: {np.sqrt( np.mean( np.abs( u_hat - u_star)**2 ) ):.4f}")
         print()
 
-        with open(os.path.join(self.SAVE_DIR,f'monte_carlo_b_{self.b:.2f}_k_{self.k:.2f}_harmonic_{int(self.W/self.w0)}.csv'), 'a') as f:
-            writer = csv.writer(f)
-            writer.writerow(fields)
+        with open(os.path.join(self.SAVE_DIR,f'monte_carlo_b_{self.b:.2f}_k_{self.k:.2f}_harmonic_{int(self.W/self.w0)}.json'), 'a') as f:
+            json.dump(fields, f)
         with open(os.path.join(self.SAVE_DIR,f'pinn_params.txt'), 'w') as f:
             f.write(str(pinn_params))
 
