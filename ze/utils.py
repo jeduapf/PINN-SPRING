@@ -8,6 +8,7 @@ from plotly.subplots import make_subplots
 import matplotlib.pyplot as plt
 import torch
 from tqdm import tqdm
+import csv
 
 def forced_damped_spring(t, system_params, eps = 10**-9):
     # System parameters
@@ -79,11 +80,14 @@ def DIRs(path_name = 'save_imgs', path_gif_name = 'gif'):
     except:
         pass
 
-    SAVE_GIF_DIR = os.path.join(SAVE_DIR,path_gif_name)
-    try:
-        os.mkdir(SAVE_GIF_DIR)
-    except:
-        pass
+    if path_gif_name is not None:
+        SAVE_GIF_DIR = os.path.join(SAVE_DIR,path_gif_name)
+        try:
+            os.mkdir(SAVE_GIF_DIR)
+        except:
+            pass
+    else:
+        SAVE_GIF_DIR = None
 
     return SAVE_DIR, SAVE_GIF_DIR
 
@@ -376,12 +380,43 @@ def write_losses(u_obs, us, mus, FINAL_DIR, losses, F, l = 10**4, TEXT = False, 
 
     return files1, files2
 
-# def generate_figures(files, d, w0, u_obs, us, mus, losses, Force_np, lambda1, False, True, figs, SAVE_DIR):
+def interpret_hyperparameters(PATH, file):
+    df = pd.read_csv(os.path.join(PATH,file), header = None)
 
-#     files1, files2 = write_losses(u_obs, us, mus, SAVE_DIR, losses, Force_np, lambda1, False, True, figs, SAVE_DIR)
-#     losses_constants_plot(mus, losses, SAVE_DIR, d, w0)
+    x = df.iloc[:,3] # Neurons
+    y = df.iloc[:,2] # Layers
+    z = np.log10(df.iloc[:,0]) # Learning rate
 
-#     print("\n\nGenerating GIFs...\n\n")
-#     save_gif_PIL(os.path.join(SAVE_DIR,"learning_k_mu.gif"), files, fps=60, loop=0)
-#     save_gif_PIL(os.path.join(SAVE_DIR,"loss1.gif"), files1, fps=60, loop=0)
-#     save_gif_PIL(os.path.join(SAVE_DIR,"loss2.gif"), files2, fps=60, loop=0)
+    fig = make_subplots(rows=1, cols=3,
+                    specs=[[{'is_3d': True}, {'is_3d': True}, {'is_3d': True}]],
+                    subplot_titles=['Relative Error K', 'Relative Error Mu', 'Error u'],
+                    )
+
+    fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='markers',marker=dict(size=12, color=df.iloc[:,4], colorscale='Jet', opacity=0.8, colorbar=dict(thickness=20,len=0.5, x=0.305))), 1, 1)
+    fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='markers',marker=dict(size=12, color=df.iloc[:,5], colorscale='Jet', opacity=0.8, colorbar=dict(thickness=20,len=0.5, x=0.655))), 1, 2)
+    fig.add_trace(go.Scatter3d(x=x, y=y, z=z, mode='markers',marker=dict(size=12, color=df.iloc[:,6], colorscale='Jet', opacity=0.8, colorbar=dict(thickness=20,len=0.5))), 1, 3)
+
+    a = 2.2
+    fig.update_layout(title='Error relation to hyperparameter', autosize=False,
+                      width=1400, height=700,
+                      showlegend=False,
+                      margin=dict(l=65, r=50, b=65, t=90),
+                      scene=dict(
+                                camera_eye=dict(x=1.25*a, y=1.25*a, z=1),
+                                xaxis_title_text='Neurons',
+                                yaxis_title_text='Layers',
+                                zaxis_title_text='log(Learning Rate)'),
+                      scene2=dict(
+                                camera_eye=dict(x=a, y=a, z=1),
+                                xaxis_title_text='Neurons',
+                                yaxis_title_text='Layers',
+                                zaxis_title_text='log(Learning Rate)'),
+                      scene3=dict(
+                                camera_eye=dict(x=a, y=a, z=1),
+                                xaxis_title_text='Neurons',
+                                yaxis_title_text='Layers',
+                                zaxis_title_text='log(Learning Rate)'))
+
+    fig.write_html(f"{os.path.join(PATH,'errors')}.html")
+
+    return df

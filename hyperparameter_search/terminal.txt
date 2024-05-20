@@ -1,0 +1,630 @@
+100%|█████████████████████████████████████████████████████████████████████████| 100000/100000 [11:09<00:00, 149.30it/s]
+
+Total iterations: 100000
+K value from pinn: 467.271
+K relative error from pinn: 16.818%
+Mu value from pinn: 2994.078
+Mu relative error from pinn: 74751.947%
+Mean error of all 5000 points in function: 0.3805
+
+100%|█████████████████████████████████████████████████████████████████████████| 100000/100000 [11:13<00:00, 148.42it/s]
+
+Total iterations: 100000
+K value from pinn: 38.946
+K relative error from pinn: -90.263%
+Mu value from pinn: -1198.678
+Mu relative error from pinn: -30066.953%
+Mean error of all 5000 points in function: 0.3683
+
+100%|█████████████████████████████████████████████████████████████████████████| 100000/100000 [11:04<00:00, 150.43it/s]
+
+Total iterations: 100000
+K value from pinn: 1790.224
+K relative error from pinn: 347.556%
+Mu value from pinn: -3990.164
+Mu relative error from pinn: -99854.108%
+Mean error of all 5000 points in function: 0.3595
+
+100%|██████████████████████████████████████████████████████████████████████████| 100000/100000 [17:24<00:00, 95.75it/s]
+
+Total iterations: 100000
+K value from pinn: 1014.591
+K relative error from pinn: 153.648%
+Mu value from pinn: -669.748
+Mu relative error from pinn: -16843.697%
+Mean error of all 5000 points in function: 0.3835
+
+100%|██████████████████████████████████████████████████████████████████████████| 100000/100000 [17:20<00:00, 96.07it/s]
+
+Total iterations: 100000
+K value from pinn: -2547.832
+K relative error from pinn: -736.958%
+Mu value from pinn: 8.110
+Mu relative error from pinn: 102.746%
+Mean error of all 5000 points in function: 0.3611
+
+100%|██████████████████████████████████████████████████████████████████████████| 100000/100000 [18:00<00:00, 92.57it/s]
+
+Total iterations: 100000
+K value from pinn: -6.183
+K relative error from pinn: -101.546%
+Mu value from pinn: -1140.275
+Mu relative error from pinn: -28606.873%
+Mean error of all 5000 points in function: 0.3654
+
+100%|██████████████████████████████████████████████████████████████████████████| 100000/100000 [23:22<00:00, 71.31it/s]
+
+Total iterations: 100000
+K value from pinn: -1513.722
+K relative error from pinn: -478.430%
+Mu value from pinn: 1275.737
+Mu relative error from pinn: 31793.430%
+Mean error of all 5000 points in function: 0.3865
+
+100%|██████████████████████████████████████████████████████████████████████████| 100000/100000 [24:35<00:00, 67.76it/s]
+
+Total iterations: 100000
+K value from pinn: -602.228
+K relative error from pinn: -250.557%
+Mu value from pinn: -3358.439
+Mu relative error from pinn: -84060.968%
+Mean error of all 5000 points in function: 0.3686
+
+100%|██████████████████████████████████████████████████████████████████████████| 100000/100000 [24:24<00:00, 68.30it/s]
+
+Total iterations: 100000
+K value from pinn: 151.486
+K relative error from pinn: -62.128%
+Mu value from pinn: 1910.971
+Mu relative error from pinn: 47674.277%
+Mean error of all 5000 points in function: 0.3654
+
+ 40%|█████████████████████████████▋                                            | 40176/100000 [04:32<07:26, 134.02it/s]
+
+                 Converged, finishing early !
+
+
+ 40%|█████████████████████████████▋                                            | 40183/100000 [04:32<06:45, 147.35it/s]
+
+Total iterations: 40184
+K value from pinn: 403.997
+K relative error from pinn: 0.999%
+Mu value from pinn: 4.015
+Mu relative error from pinn: 0.382%
+Mean error of all 5000 points in function: 0.0008
+
+ 55%|████████████████████████████████████████▎                                 | 54551/100000 [06:02<03:59, 190.02it/s]
+
+                 Converged, finishing early !
+
+
+ 55%|████████████████████████████████████████▎                                 | 54555/100000 [06:02<05:02, 150.40it/s]
+
+Total iterations: 54556
+K value from pinn: 396.021
+K relative error from pinn: -0.995%
+Mu value from pinn: 3.990
+Mu relative error from pinn: -0.257%
+Mean error of all 5000 points in function: 0.0056
+
+100%|█████████████████████████████████████████████████████████████████████████| 100000/100000 [11:01<00:00, 151.25it/s]
+
+Total iterations: 100000
+K value from pinn: 368.722
+K relative error from pinn: -7.819%
+Mu value from pinn: 3.998
+Mu relative error from pinn: -0.053%
+Mean error of all 5000 points in function: 0.0082
+
+ 15%|███████████▍                                                              | 15447/100000 [02:17<12:05, 116.56it/s]
+
+                 Converged, finishing early !
+
+
+ 15%|███████████▍                                                              | 15450/100000 [02:17<12:30, 112.73it/s]
+
+Total iterations: 15451
+K value from pinn: 398.585
+K relative error from pinn: -0.354%
+Mu value from pinn: 4.040
+Mu relative error from pinn: 0.994%
+Mean error of all 5000 points in function: 0.0105
+
+100%|██████████████████████████████████████████████████████████████████████████| 100000/100000 [17:13<00:00, 96.79it/s]
+
+Total iterations: 100000
+K value from pinn: 573.236
+K relative error from pinn: 43.309%
+Mu value from pinn: 250.197
+Mu relative error from pinn: 6154.929%
+Mean error of all 5000 points in function: 0.3606
+
+ 59%|███████████████████████████████████████████▌                              | 58903/100000 [10:46<05:42, 119.86it/s]
+
+                 Converged, finishing early !
+
+
+ 59%|████████████████████████████████████████████▏                              | 58912/100000 [10:46<07:30, 91.11it/s]
+
+Total iterations: 58913
+K value from pinn: 403.996
+K relative error from pinn: 0.999%
+Mu value from pinn: 4.023
+Mu relative error from pinn: 0.579%
+Mean error of all 5000 points in function: 0.0048
+
+ 59%|████████████████████████████████████████████                               | 58790/100000 [14:10<07:47, 88.20it/s]
+
+                 Converged, finishing early !
+
+
+ 59%|████████████████████████████████████████████                               | 58791/100000 [14:10<09:56, 69.10it/s]
+
+Total iterations: 58792
+K value from pinn: 396.004
+K relative error from pinn: -0.999%
+Mu value from pinn: 3.977
+Mu relative error from pinn: -0.567%
+Mean error of all 5000 points in function: 0.0005
+
+ 39%|█████████████████████████████                                              | 38740/100000 [09:05<11:14, 90.83it/s]
+
+                 Converged, finishing early !
+
+
+ 39%|█████████████████████████████                                              | 38743/100000 [09:05<14:23, 70.97it/s]
+
+Total iterations: 38744
+K value from pinn: 396.002
+K relative error from pinn: -1.000%
+Mu value from pinn: 3.982
+Mu relative error from pinn: -0.454%
+Mean error of all 5000 points in function: 0.0037
+
+100%|██████████████████████████████████████████████████████████████████████████| 100000/100000 [23:49<00:00, 69.96it/s]
+
+Total iterations: 100000
+K value from pinn: 72.529
+K relative error from pinn: -81.868%
+Mu value from pinn: 85.759
+Mu relative error from pinn: 2043.987%
+Mean error of all 5000 points in function: 0.3694
+
+100%|█████████████████████████████████████████████████████████████████████████| 100000/100000 [11:12<00:00, 148.71it/s]
+
+Total iterations: 100000
+K value from pinn: 387.109
+K relative error from pinn: -3.223%
+Mu value from pinn: 3.944
+Mu relative error from pinn: -1.399%
+Mean error of all 5000 points in function: 0.0048
+
+100%|█████████████████████████████████████████████████████████████████████████| 100000/100000 [10:14<00:00, 162.61it/s]
+
+Total iterations: 100000
+K value from pinn: 426.708
+K relative error from pinn: 6.677%
+Mu value from pinn: 4.188
+Mu relative error from pinn: 4.705%
+Mean error of all 5000 points in function: 0.0062
+
+ 60%|████████████████████████████████████████████▏                             | 59716/100000 [06:56<03:46, 177.96it/s]
+
+                 Converged, finishing early !
+
+
+ 60%|████████████████████████████████████████████▏                             | 59733/100000 [06:56<04:40, 143.52it/s]
+
+Total iterations: 59734
+K value from pinn: 403.999
+K relative error from pinn: 1.000%
+Mu value from pinn: 4.019
+Mu relative error from pinn: 0.465%
+Mean error of all 5000 points in function: 0.0011
+
+ 34%|█████████████████████████▋                                                 | 34286/100000 [06:04<14:42, 74.42it/s]
+
+                 Converged, finishing early !
+
+
+ 34%|█████████████████████████▋                                                 | 34290/100000 [06:04<11:38, 94.11it/s]
+
+Total iterations: 34291
+K value from pinn: 403.999
+K relative error from pinn: 1.000%
+Mu value from pinn: 4.015
+Mu relative error from pinn: 0.373%
+Mean error of all 5000 points in function: 0.0012
+
+ 41%|███████████████████████████████                                            | 41393/100000 [07:21<12:07, 80.52it/s]
+
+                 Converged, finishing early !
+
+
+ 41%|███████████████████████████████                                            | 41394/100000 [07:21<10:25, 93.73it/s]
+
+Total iterations: 41395
+K value from pinn: 396.001
+K relative error from pinn: -1.000%
+Mu value from pinn: 3.974
+Mu relative error from pinn: -0.654%
+Mean error of all 5000 points in function: 0.0032
+
+ 80%|███████████████████████████████████████████████████████████▎              | 80221/100000 [14:39<02:43, 120.91it/s]
+
+                 Converged, finishing early !
+
+
+ 80%|████████████████████████████████████████████████████████████▏              | 80227/100000 [14:39<03:36, 91.19it/s]
+
+Total iterations: 80228
+K value from pinn: 403.999
+K relative error from pinn: 1.000%
+Mu value from pinn: 3.991
+Mu relative error from pinn: -0.218%
+Mean error of all 5000 points in function: 0.0009
+
+ 39%|█████████████████████████████▌                                             | 39498/100000 [09:04<17:37, 57.19it/s]
+
+                 Converged, finishing early !
+
+
+ 40%|█████████████████████████████▋                                             | 39502/100000 [09:04<13:53, 72.58it/s]
+
+Total iterations: 39503
+K value from pinn: 401.347
+K relative error from pinn: 0.337%
+Mu value from pinn: 4.040
+Mu relative error from pinn: 0.996%
+Mean error of all 5000 points in function: 0.0037
+
+ 13%|█████████▍                                                                 | 12637/100000 [03:10<16:31, 88.13it/s]
+
+                 Converged, finishing early !
+
+
+ 13%|█████████▍                                                                 | 12646/100000 [03:11<21:59, 66.18it/s]
+
+Total iterations: 12647
+K value from pinn: 397.101
+K relative error from pinn: -0.725%
+Mu value from pinn: 4.040
+Mu relative error from pinn: 0.997%
+Mean error of all 5000 points in function: 0.0034
+
+ 88%|█████████████████████████████████████████████████████████████████▋         | 87665/100000 [21:32<03:33, 57.71it/s]
+
+                 Converged, finishing early !
+
+
+ 88%|█████████████████████████████████████████████████████████████████▊         | 87668/100000 [21:32<03:01, 67.84it/s]
+
+Total iterations: 87669
+K value from pinn: 396.002
+K relative error from pinn: -1.000%
+Mu value from pinn: 3.988
+Mu relative error from pinn: -0.312%
+Mean error of all 5000 points in function: 0.0011
+
+ 51%|█████████████████████████████████████▌                                    | 50824/100000 [05:43<04:22, 187.42it/s]
+
+                 Converged, finishing early !
+
+
+ 51%|█████████████████████████████████████▌                                    | 50839/100000 [05:43<05:32, 147.93it/s]
+
+Total iterations: 50840
+K value from pinn: 403.493
+K relative error from pinn: 0.873%
+Mu value from pinn: 4.040
+Mu relative error from pinn: 0.999%
+Mean error of all 5000 points in function: 0.0009
+
+100%|█████████████████████████████████████████████████████████████████████████| 100000/100000 [10:56<00:00, 152.30it/s]
+
+Total iterations: 100000
+K value from pinn: 398.515
+K relative error from pinn: -0.371%
+Mu value from pinn: 1.464
+Mu relative error from pinn: -63.399%
+Mean error of all 5000 points in function: 0.0234
+
+ 78%|█████████████████████████████████████████████████████████▌                | 77845/100000 [08:59<02:55, 126.25it/s]
+
+                 Converged, finishing early !
+
+
+ 78%|█████████████████████████████████████████████████████████▌                | 77848/100000 [08:59<02:33, 144.18it/s]
+
+Total iterations: 77849
+K value from pinn: 399.989
+K relative error from pinn: -0.003%
+Mu value from pinn: 4.040
+Mu relative error from pinn: 0.999%
+Mean error of all 5000 points in function: 0.0015
+
+ 42%|███████████████████████████████▊                                           | 42344/100000 [07:16<12:38, 76.06it/s]
+
+                 Converged, finishing early !
+
+
+ 42%|███████████████████████████████▊                                           | 42350/100000 [07:16<09:54, 97.01it/s]
+
+Total iterations: 42351
+K value from pinn: 400.248
+K relative error from pinn: 0.062%
+Mu value from pinn: 4.040
+Mu relative error from pinn: 0.999%
+Mean error of all 5000 points in function: 0.0013
+
+ 47%|██████████████████████████████████▉                                        | 46599/100000 [07:50<09:57, 89.42it/s]
+
+                 Converged, finishing early !
+
+
+ 47%|██████████████████████████████████▉                                        | 46600/100000 [07:50<08:59, 99.03it/s]
+
+Total iterations: 46601
+K value from pinn: 404.000
+K relative error from pinn: 1.000%
+Mu value from pinn: 4.006
+Mu relative error from pinn: 0.159%
+Mean error of all 5000 points in function: 0.0012
+
+ 10%|███████▌                                                                  | 10232/100000 [01:47<12:17, 121.65it/s]
+
+                 Converged, finishing early !
+
+
+ 10%|███████▋                                                                   | 10232/100000 [01:47<15:42, 95.27it/s]
+
+Total iterations: 10233
+K value from pinn: 399.545
+K relative error from pinn: -0.114%
+Mu value from pinn: 3.960
+Mu relative error from pinn: -0.999%
+Mean error of all 5000 points in function: 0.0003
+
+100%|██████████████████████████████████████████████████████████████████████████| 100000/100000 [23:22<00:00, 71.32it/s]
+
+Total iterations: 100000
+K value from pinn: 401.763
+K relative error from pinn: 0.441%
+Mu value from pinn: 3.887
+Mu relative error from pinn: -2.824%
+Mean error of all 5000 points in function: 0.0018
+
+ 60%|█████████████████████████████████████████████▏                             | 60196/100000 [13:42<09:04, 73.14it/s]
+
+                 Converged, finishing early !
+
+
+ 60%|█████████████████████████████████████████████▏                             | 60197/100000 [13:42<09:04, 73.15it/s]
+
+Total iterations: 60198
+K value from pinn: 399.468
+K relative error from pinn: -0.133%
+Mu value from pinn: 4.040
+Mu relative error from pinn: 0.999%
+Mean error of all 5000 points in function: 0.0007
+
+ 84%|██████████████████████████████████████████████████████████████▊            | 83799/100000 [17:17<03:23, 79.49it/s]
+
+                 Converged, finishing early !
+
+
+ 84%|██████████████████████████████████████████████████████████████▊            | 83803/100000 [17:17<03:20, 80.74it/s]
+
+Total iterations: 83804
+K value from pinn: 404.000
+K relative error from pinn: 1.000%
+Mu value from pinn: 4.014
+Mu relative error from pinn: 0.347%
+Mean error of all 5000 points in function: 0.0030
+
+ 83%|█████████████████████████████████████████████████████████████▌            | 83250/100000 [07:41<01:30, 185.48it/s]
+
+                 Converged, finishing early !
+
+
+ 83%|█████████████████████████████████████████████████████████████▌            | 83260/100000 [07:41<01:32, 180.27it/s]
+
+Total iterations: 83261
+K value from pinn: 400.080
+K relative error from pinn: 0.020%
+Mu value from pinn: 3.960
+Mu relative error from pinn: -0.999%
+Mean error of all 5000 points in function: 0.0004
+
+ 43%|███████████████████████████████▌                                          | 42691/100000 [03:55<05:47, 165.04it/s]
+
+                 Converged, finishing early !
+
+
+ 43%|███████████████████████████████▌                                          | 42692/100000 [03:55<05:15, 181.65it/s]
+
+Total iterations: 42693
+K value from pinn: 399.869
+K relative error from pinn: -0.033%
+Mu value from pinn: 4.040
+Mu relative error from pinn: 1.000%
+Mean error of all 5000 points in function: 0.0001
+
+ 68%|██████████████████████████████████████████████████▌                       | 68300/100000 [06:50<03:03, 173.01it/s]
+
+                 Converged, finishing early !
+
+
+ 68%|██████████████████████████████████████████████████▌                       | 68304/100000 [06:50<03:10, 166.41it/s]
+
+Total iterations: 68305
+K value from pinn: 400.004
+K relative error from pinn: 0.001%
+Mu value from pinn: 3.960
+Mu relative error from pinn: -1.000%
+Mean error of all 5000 points in function: 0.0001
+
+100%|█████████████████████████████████████████████████████████████████████████| 100000/100000 [14:36<00:00, 114.03it/s]
+
+Total iterations: 100000
+K value from pinn: 400.673
+K relative error from pinn: 0.168%
+Mu value from pinn: 3.862
+Mu relative error from pinn: -3.456%
+Mean error of all 5000 points in function: 0.0072
+
+ 44%|████████████████████████████████▊                                         | 44330/100000 [06:36<08:55, 104.05it/s]
+
+                 Converged, finishing early !
+
+
+ 44%|████████████████████████████████▊                                         | 44340/100000 [06:36<08:17, 111.77it/s]
+
+Total iterations: 44341
+K value from pinn: 399.849
+K relative error from pinn: -0.038%
+Mu value from pinn: 3.960
+Mu relative error from pinn: -1.000%
+Mean error of all 5000 points in function: 0.0024
+
+100%|█████████████████████████████████████████████████████████████████████████| 100000/100000 [16:07<00:00, 103.41it/s]
+
+Total iterations: 100000
+K value from pinn: 399.471
+K relative error from pinn: -0.132%
+Mu value from pinn: 3.536
+Mu relative error from pinn: -11.599%
+Mean error of all 5000 points in function: 0.0225
+
+100%|██████████████████████████████████████████████████████████████████████████| 100000/100000 [22:05<00:00, 75.44it/s]
+
+Total iterations: 100000
+K value from pinn: 400.402
+K relative error from pinn: 0.101%
+Mu value from pinn: 3.920
+Mu relative error from pinn: -2.012%
+Mean error of all 5000 points in function: 0.0384
+
+ 81%|████████████████████████████████████████████████████████████▋              | 80963/100000 [19:28<03:24, 93.25it/s]
+
+                 Converged, finishing early !
+
+
+ 81%|████████████████████████████████████████████████████████████▋              | 80966/100000 [19:28<04:34, 69.31it/s]
+
+Total iterations: 80967
+K value from pinn: 399.631
+K relative error from pinn: -0.092%
+Mu value from pinn: 3.960
+Mu relative error from pinn: -1.000%
+Mean error of all 5000 points in function: 0.0003
+
+100%|██████████████████████████████████████████████████████████████████████████| 100000/100000 [24:14<00:00, 68.75it/s]
+
+Total iterations: 100000
+K value from pinn: 400.443
+K relative error from pinn: 0.111%
+Mu value from pinn: 3.965
+Mu relative error from pinn: -0.872%
+Mean error of all 5000 points in function: 0.0383
+
+100%|█████████████████████████████████████████████████████████████████████████| 100000/100000 [11:02<00:00, 150.98it/s]
+
+Total iterations: 100000
+K value from pinn: 400.053
+K relative error from pinn: 0.013%
+Mu value from pinn: 4.147
+Mu relative error from pinn: 3.679%
+Mean error of all 5000 points in function: 0.0777
+
+100%|█████████████████████████████████████████████████████████████████████████| 100000/100000 [10:49<00:00, 154.08it/s]
+
+Total iterations: 100000
+K value from pinn: 400.372
+K relative error from pinn: 0.093%
+Mu value from pinn: 4.274
+Mu relative error from pinn: 6.852%
+Mean error of all 5000 points in function: 0.0033
+
+100%|█████████████████████████████████████████████████████████████████████████| 100000/100000 [11:48<00:00, 141.07it/s]
+
+Total iterations: 100000
+K value from pinn: 400.442
+K relative error from pinn: 0.111%
+Mu value from pinn: 4.174
+Mu relative error from pinn: 4.357%
+Mean error of all 5000 points in function: 0.0005
+
+100%|██████████████████████████████████████████████████████████████████████████| 100000/100000 [17:47<00:00, 93.69it/s]
+
+Total iterations: 100000
+K value from pinn: 399.944
+K relative error from pinn: -0.014%
+Mu value from pinn: 4.135
+Mu relative error from pinn: 3.378%
+Mean error of all 5000 points in function: 0.0198
+
+ 61%|█████████████████████████████████████████████▊                             | 61063/100000 [10:46<07:49, 82.93it/s]
+
+                 Converged, finishing early !
+
+
+ 61%|█████████████████████████████████████████████▊                             | 61072/100000 [10:46<06:52, 94.43it/s]
+
+Total iterations: 61073
+K value from pinn: 399.964
+K relative error from pinn: -0.009%
+Mu value from pinn: 4.040
+Mu relative error from pinn: 1.000%
+Mean error of all 5000 points in function: 0.0007
+
+ 57%|██████████████████████████████████████████▏                               | 57004/100000 [09:42<06:09, 116.49it/s]
+
+                 Converged, finishing early !
+
+
+ 57%|██████████████████████████████████████████▊                                | 57009/100000 [09:43<07:19, 97.78it/s]
+
+Total iterations: 57010
+K value from pinn: 400.163
+K relative error from pinn: 0.041%
+Mu value from pinn: 3.960
+Mu relative error from pinn: -1.000%
+Mean error of all 5000 points in function: 0.0003
+
+ 61%|██████████████████████████████████████████████                             | 61389/100000 [14:56<10:56, 58.84it/s]
+
+                 Converged, finishing early !
+
+
+ 61%|██████████████████████████████████████████████                             | 61393/100000 [14:56<09:23, 68.50it/s]
+
+Total iterations: 61394
+K value from pinn: 399.830
+K relative error from pinn: -0.042%
+Mu value from pinn: 4.040
+Mu relative error from pinn: 1.000%
+Mean error of all 5000 points in function: 0.0007
+
+100%|██████████████████████████████████████████████████████████████████████████| 100000/100000 [24:03<00:00, 69.29it/s]
+
+Total iterations: 100000
+K value from pinn: 400.075
+K relative error from pinn: 0.019%
+Mu value from pinn: 3.709
+Mu relative error from pinn: -7.280%
+Mean error of all 5000 points in function: 0.0321
+
+ 64%|███████████████████████████████████████████████▊                           | 63686/100000 [14:59<07:20, 82.45it/s]
+
+                 Converged, finishing early !
+
+
+ 64%|███████████████████████████████████████████████▊                           | 63693/100000 [14:59<08:32, 70.78it/s]
+
+Total iterations: 63694
+K value from pinn: 400.391
+K relative error from pinn: 0.098%
+Mu value from pinn: 4.040
+Mu relative error from pinn: 1.000%
+Mean error of all 5000 points in function: 0.0002
