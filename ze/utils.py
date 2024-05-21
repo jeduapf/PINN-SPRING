@@ -10,6 +10,7 @@ import torch
 from tqdm import tqdm
 import csv
 import re
+import json
 
 def forced_damped_spring(t, system_params, eps = 10**-9):
     # System parameters
@@ -445,7 +446,7 @@ def ellipse(x_center=0, y_center=0, ax1 = [1, 0],  ax2 = [0,1], a=1, b =1,  N=10
    y = yp + y_center
    return x, y
 
-def monte_carlo_viz(PATH, f):
+def monte_carlo_viz_csv(PATH, f):
 
     # Val_error, true_b, true_k, pinn_b, pinn_k
     df = pd.read_csv(os.path.join(PATH,f), header = None)
@@ -480,7 +481,7 @@ def monte_carlo_viz(PATH, f):
 
     fig = go.Figure(data=[go.Scatter(x=x, y=y, mode='markers', name="Initial iteration")])
     fig.add_trace(go.Scatter(x=x_, y=y_, mode='markers', name="Final iteration"))
-    x_e, y_e = ellipse(x_center=better_list[0][1], y_center=better_list[0][2], a=sigma_2, b = sigma_2*p)
+    x_e, y_e = ellipse(x_center=better_list[0][1], y_center=better_list[0][2], a=sigma_2, b = sigma_2)
     x_e_good, y_e_good = ellipse(x_center=better_list[0][1], y_center=better_list[0][2], a=better_list[0][1]*0.01, b = better_list[0][2]*0.01)
     fig.add_trace(go.Scatter(x=x_e, y=y_e, mode='lines', name="Initial", opacity=0.9))
     fig.add_trace(go.Scatter(x=x_e_good, y=y_e_good, mode='lines', name="Good", opacity=0.9))
@@ -495,4 +496,5 @@ def monte_carlo_viz(PATH, f):
     fig.write_html(os.path.join(PATH, f[:-4]+'.html'))
 
     return better_list
+
 

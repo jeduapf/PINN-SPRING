@@ -14,22 +14,22 @@ if __name__ == "__main__":
     # file = "results.csv"
     # hyper_dict = interpret_hyperparameters(PATH, file)
 
-    # N = 50
-    # H = 3    
-    # Ds = [2]
-    # Ws = [20,40,80,160,320] # From 80  ahead data points are insufficient accordint to Nyquist
-    # # Data points = 100
-    # # Physics points = 500
+    N = 50
+    H = 3    
+    Ds = [2]
+    Ws = [20,40,80,160,320] # From 80  ahead data points are insufficient accordint to Nyquist
+    # Data points = 100
+    # Physics points = 500
 
-    # combinations = []
-    # for i in range(len(Ds)):
-    #     for j in range(len(Ws)):
-    #         combinations.append((Ds[i], Ws[j]))
+    combinations = []
+    for i in range(len(Ds)):
+        for j in range(len(Ws)):
+            combinations.append((Ds[i], Ws[j]))
 
-    # for (d,w0) in combinations:
-    #     print(f"\n\t\t-------------------------------d: {d} - w0: {w0}-------------------------------\n")
-    #     monte_carlo(N, d, w0, H)
+    for (d,w0) in combinations:
+        print(f"\n\t\t-------------------------------d: {d} - w0: {w0}-------------------------------\n")
+        monte_carlo(N, d, w0, H, epochs = 8*10**4)
 
-    PATH = r"C:\Users\jedua\Documents\INSA\Python\PINN\PINN-SPRING\monte_carlo"
-    file = "monte_carlo_b_4.00_k_400.00_harmonic_3.csv"
-    monte_carlo_viz(PATH, file)
+    # PATH = r"C:\Users\jedua\Documents\INSA\Python\PINN\PINN-SPRING\monte_carlo"
+    # file = "monte_carlo_b_4.00_k_400.00_harmonic_3.csv"
+    # monte_carlo_viz_csv(PATH, file)

@@ -50,6 +50,8 @@ class PINN():
         self.pinn = FCN(1,1,self.neurons,self.layers)
 
         # PINN optimization parameters
+        self.stop_eps = pinn_params["stop_eps"]
+        self.stop_eps_u = pinn_params["stop_eps_u"]
         self.learning_rate = pinn_params["learning_rate"]
         self.regularization = pinn_params["regularization"]
         self.epochs = pinn_params["epochs"]
@@ -123,7 +125,7 @@ class PINN():
         return torch.mean((u_obs_hat - u_obs)**2) 
 
     def stop(self):
-        return self.losses[-1][2] < 10**-3*self.losses[0][2] and torch.abs(self.constants[-1][0]/self.b_torch - 1) < 10**-2 and torch.abs(self.constants[-1][1]/self.k_torch - 1) < 10**-2
+        return self.losses[-1][2] < self.stop_eps_u*self.losses[0][2] and torch.abs(self.constants[-1][0]/self.b_torch - 1) < self.stop_eps and torch.abs(self.constants[-1][1]/self.k_torch - 1) < self.stop_eps
 
     def dashboard(self, i):
         if self.TEXT:
@@ -267,11 +269,11 @@ class PINN():
         u_star = forced_damped_spring(self.t, self.sys_params)
         consts = np.array(self.constants)
 
-        fields={'val_error': np.sqrt( np.mean( np.abs( u_hat - u_star)**2 ) ),
-                'true_b':self.b, 
-                'true_k':self.k,
-                'pinn_b':consts[:,0],
-                'pinn_b':consts[:,1]}
+        fields={"val_error": np.sqrt( np.mean( np.abs( u_hat - u_star)**2 ) ),
+                "true_b":self.b, 
+                "true_k":self.k,
+                "pinn_b":list(consts[:,0]),
+                "pinn_k":list(consts[:,1])}
         print()
         print(f"Total iterations: {int(consts.shape[0])}")
         print(f"K value from pinn: {self.k_guess.item():.3f}")
@@ -282,9 +284,12 @@ class PINN():
         print()
 
         with open(os.path.join(self.SAVE_DIR,f'monte_carlo_b_{self.b:.2f}_k_{self.k:.2f}_harmonic_{int(self.W/self.w0)}.json'), 'a') as f:
-            json.dump(fields, f)
+            f.write(str(fields).replace("'",'"') + '\n')
+
         with open(os.path.join(self.SAVE_DIR,f'pinn_params.txt'), 'w') as f:
             f.write(str(pinn_params))
+
+        return os.path.join(self.SAVE_DIR,f'monte_carlo_b_{self.b:.2f}_k_{self.k:.2f}_harmonic_{int(self.W/self.w0)}.json')
 
 def hyperparameter_search(layers, neurons, learning_rate):
     
@@ -318,6 +323,8 @@ def hyperparameter_search(layers, neurons, learning_rate):
                         "neurons": ne,
                         "layers": la,
                         "learning_rate": lr,
+                        "stop_eps": 5*10**-3,
+                        "stop_eps_u": 10**-4,
                         "regularization": 5*10**5,
                         "epochs": 10**5,
                         "batch": None,
@@ -360,6 +367,8 @@ def run_once():
                     "observation_points": 50,
                     "neurons": 80,
                     "layers": 3,
+                    "stop_eps": 5*10**-3,
+                    "stop_eps_u": 10**-4,
                     "learning_rate": 1*10**-3,
                     "regularization": 5*10**5,
                     "epochs": 5*10**4,
@@ -380,7 +389,7 @@ def run_once():
     spring_pinn.train()
     spring_pinn.save_plots()
 
-def monte_carlo(N, d = 2, w0 =  20, Harmonic = 3):
+def monte_carlo(N, d = 2, w0 =  20, Harmonic = 3, epochs = 8*10**4):
     
     for count in range(N):
         s = "monte_carlo"
@@ -408,18 +417,20 @@ def monte_carlo(N, d = 2, w0 =  20, Harmonic = 3):
                             # "observation_points": 2*system_params["W"]/5, # Let's get 20% of physics points
                             "neurons": 80,
                             "layers": 3,
+                            "stop_eps": 5*10**-3,
+                            "stop_eps_u": 10**-4,
                             "learning_rate": 10**-3.5,
-                            "regularization": 5*10**5,
-                            "epochs": 8*10**4,
+                            "regularization": 3*10**6,
+                            "epochs": epochs,
                             "batch": None,
                             "k_guess": 0.0,
                             "mu_guess": 0.0}
 
         # Randomly select the initial guesses in the normal distribution centered in the true value
         # with 2 standard deviation of the distance of the total steps times the learning rate ( rough approximation ) 
-        pinn_params["mu_guess"] = 2*d + np.random.normal(0, pinn_params["epochs"]*pinn_params["learning_rate"]/2, 1)[0] # N(K,2*sigma*mu/sqrt(k))
+        pinn_params["mu_guess"] = 2*d + np.random.normal(0, (d/w0)*pinn_params["epochs"]*pinn_params["learning_rate"]/2, 1)[0] # N(K,2*sigma*mu/sqrt(k))
         pinn_params["k_guess"] = w0**2 + np.random.normal(0, pinn_params["epochs"]*pinn_params["learning_rate"]/2, 1)[0] # N(K,2*sigma)
 
         spring_pinn = PINN(control_params, system_params, pinn_params)
         spring_pinn.train()
-        spring_pinn.save_monte_carlo(pinn_params)
+        MC_PATH = spring_pinn.save_monte_carlo(pinn_params)
