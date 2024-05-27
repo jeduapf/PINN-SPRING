@@ -1,1 +1,1 @@
-{'physics_points': 500, 'observation_points': 100, 'neurons': 80, 'layers': 3, 'learning_rate': 0.00031622776601683794, 'regularization': 500000, 'epochs': 80, 'batch': None, 'k_guess': 1599.992909734744, 'mu_guess': 4.000272602931794}
+{'physics_points': 1000, 'observation_points': 200, 'neurons': 80, 'layers': 3, 'stop_eps': 0.005, 'stop_eps_u': 0.0001, 'learning_rate': 0.0001, 'regularization': 3000000, 'epochs': 200000, 'batch': None, 'k_guess': 25600.718423915343, 'mu_guess': 3.8464858887709177}
