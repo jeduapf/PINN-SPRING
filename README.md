@@ -17,14 +17,14 @@ In this project the <b>main objective<b> is to discover the parameters of the eq
 Given a Spring-mass system following the equation:
 
 $m\frac{\partial^2 x(t)}{\partial t^2} + b\frac{\partial x(t)}{\partial t} + kx(t) = 0$
-<br>
+
 If we assume m = 1 Kg and b and k as the following:
 $m = 1\\b = 2\xi\omega_0\\k = w_0^2$
-<br>
+
 We get the homogeneous equation bellow:
 $\frac{\partial^2 x(t)}{\partial t^2} + 2\xi\omega_0\frac{\partial x(t)}{\partial t} + w_0^2x(t) = 
 0$
-<br>
+
 Litte gif showing the form of the position $x(t)$ of the spring and its derivative $\frac{\partial x(t)}{\partial t}$ over time for the homogeneous equation above:
 ![Image](https://upload.wikimedia.org/wikipedia/commons/f/fa/Spring-mass_under-damped.gif)
 
