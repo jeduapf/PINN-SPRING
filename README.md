@@ -67,18 +67,21 @@ The maximum frequency of the system is its natural frequency given by $f_0 = \fr
 
 ### Results & Conclusion
 
-$$w_0 = 20 rad/s$$
+$$w_0 = 20 \ rad/s$$
 
 ![Image](https://github.com/jeduapf/PINN-SPRING/blob/hypertuning/monte_carlo/monte_carlo_b_4.00_k_400.00_harmonic_3.png?raw=true)
 
-$$w_0 = 40 rad/s$$
+$$w_0 = 40 \ rad/s$$
 
 ![Image](https://github.com/jeduapf/PINN-SPRING/blob/hypertuning/monte_carlo/monte_carlo_b_4.00_k_1600.00_harmonic_3.png?raw=true)
 
-$$w_0 = 80 rad/s$$
+$$w_0 = 80 \ rad/s$$
 
 ![Image](https://github.com/jeduapf/PINN-SPRING/blob/hypertuning/monte_carlo/monte_carlo_b_4.00_k_6400.00_harmonic_3.png?raw=true)
 
+Although the testing framework is still statistical small one can intuitively conclude that the higher the frequency (for a fixed set of hyperparameters) more difficult it will be for the network to converge and find the good constants of the PDE.
+
+Also from the low frequency problems, most of the time it converged between $20 000$ to $60 000$ iterations and for higher frequencies it didn't not only not converged but also went through all the $200 000$ epochs...
 
 ## References
 
