@@ -53,12 +53,12 @@ self.optimiser = torch.optim.Adam(list(self.pinn.parameters())+[self.k_guess, se
 
 ## References
 
-[1](https://ora.ox.ac.uk/objects/uuid:b790477c-771f-4926-99c6-d2f9d248cb23/files/d8p58pd35h)
+[[1]](https://ora.ox.ac.uk/objects/uuid:b790477c-771f-4926-99c6-d2f9d248cb23/files/d8p58pd35h)
 Moseley, B (2022). 
 Physics-informed machine learning: from concepts to real-world applications,
 University of Oxford
 
-[2](https://arxiv.org/pdf/1711.10561)
+[[2]](https://arxiv.org/pdf/1711.10561)
 Maziar Raissi, Paris Perdikaris, and George Em Karniadakis (2017). 
 Physics Informed Deep Learning (Part I): Data-driven Solutions of Nonlinear Partial Differential Equations
 
