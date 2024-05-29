@@ -16,7 +16,7 @@ In this project the <b>main objective<b> is to discover the parameters of the eq
 
 Given a Spring-mass system following the equation:
 
-$m\frac{\partial^2 x(t)}{\partial t^2} + b\frac{\partial x(t)}{\partial t} + kx(t) = 0$
+<img src="https://latex.codecogs.com/svg.image?&space;m\frac{\partial^2&space;x(t)}{\partial&space;t^2}&plus;b\frac{\partial&space;x(t)}{\partial&space;t}&plus;kx(t)=0&space;" title=" m\frac{\partial^2 x(t)}{\partial t^2}+b\frac{\partial x(t)}{\partial t}+kx(t)=0 " />
 
 If we assume m = 1 Kg and b and k as the following:
 $m = 1\\b = 2\xi\omega_0\\k = w_0^2$
