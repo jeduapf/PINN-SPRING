@@ -25,7 +25,7 @@ k = w_0^2
 $
 <br>
 We get the homogeneous equation bellow:
-\frac{\partial^2 x(t)}{\partial t^2} + 2\xi\omega_0\frac{\partial x(t)}{\partial t} + w_0^2x(t) = 
+$\frac{\partial^2 x(t)}{\partial t^2} + 2\xi\omega_0\frac{\partial x(t)}{\partial t} + w_0^2x(t) = 
 0$
 <br>
 Litte gif showing the form of the position $x(t)$ of the spring and its derivative $\frac{\partial x(t)}{\partial t}$ over time for the homogeneous equation above:
