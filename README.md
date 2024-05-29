@@ -9,10 +9,10 @@ In this project the **main objective** is to discover the parameters of the equa
 
 Given a Spring-mass homogeneous system following the equation ,if we assume m = 1 Kg and b and k as the following:
 
-$$\frac{\partial^2 x(t)}{\partial t^2} + 2\xi\omega_0\frac{\partial x(t)}{\partial t} + w_0^2x(t) = 0$$
+$$\frac{\partial^2 x(t)}{\partial t^2} + b\frac{\partial x(t)}{\partial t} + kx(t) = 0$$
 
 Adding a external force that is a function of time the equation becomes:
 
-$$\frac{\partial^2 x(t)}{\partial t^2} + 2\xi\omega_0\frac{\partial x(t)}{\partial t} + w_0^2x(t) = F_{ext}(t)$$
+$$\frac{\partial^2 x(t)}{\partial t^2} + b\frac{\partial x(t)}{\partial t} + kx(t) = F_{ext}(t)$$
 
 
