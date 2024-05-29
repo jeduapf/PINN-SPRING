@@ -16,6 +16,6 @@ In this project the <b>main objective<b> is to discover the parameters of the eq
 
 Given a Spring-mass system following the equation:
 
-$m\frac{\partial^2 x(t)}{\partial t^2} + b\frac{\partial x(t)}{\partial t} + kx(t) = 0$
+$ m\frac{\partial^2 x(t)}{\partial t^2} + b\frac{\partial x(t)}{\partial t} + kx(t) = 0 $
 
 
