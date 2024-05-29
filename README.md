@@ -1,4 +1,5 @@
 
+
 # Physics Informed Neural Network (PINN)
 ## Mass-spring-damper PDE
 
@@ -18,11 +19,7 @@ Given a Spring-mass system following the equation:
 $m\frac{\partial^2 x(t)}{\partial t^2} + b\frac{\partial x(t)}{\partial t} + kx(t) = 0$
 <br>
 If we assume m = 1 Kg and b and k as the following:
-$
-m = 1\\
-b = 2\xi\omega_0\\
-k = w_0^2
-$
+$m = 1\\b = 2\xi\omega_0\\k = w_0^2$
 <br>
 We get the homogeneous equation bellow:
 $\frac{\partial^2 x(t)}{\partial t^2} + 2\xi\omega_0\frac{\partial x(t)}{\partial t} + w_0^2x(t) = 
