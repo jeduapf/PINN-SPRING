@@ -44,7 +44,7 @@ For a fixed amount of epochs and initial k and b such that the steps needed to a
 
 In this experiment the strogenst conclusion is that a bad choice of Learning Rate implies in bad estimation and the architecture of the network doesn't change much its convergency (except for the time to train which isn't shown above). 
 
-Also, this experiment was on a **SINGLE** case problem with low frequency as shown below:
+Also, this experiment was on a **SINGLE** case problem with low frequency ($b = 4$, $k = 400$ => $w_0 = 20$, $f_0 = 3.18 Hz$) as shown below:
 
 ![Image](https://raw.githubusercontent.com/jeduapf/PINN-SPRING/main/Converged/mu0_13.0_k0_417.0_pys_300_obs_60_iter_100k_lr_3.00e-04_lb_1.00e%2B05/learning_k_mu.gif)
 
