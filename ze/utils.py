@@ -147,13 +147,13 @@ def losses_constants_plot(mus, losses, SAVE_DIR, d = 2, w0 = 20):
                         subplot_titles=( "Mu", "K"))
 
     fig.add_trace(
-        go.Scatter(x=X, y=mus_np[:,0], name = "PINN estimate"),
+        go.Scatter(x=X, y=mus_np[:,0], name = "PINN estimate of mu"),
         row=1, col=1
         )
     fig.add_hline(y=2*d, line_dash="dot", name = f"Expected mu {2*d:.2f}", row=1, col=1)
 
     fig.add_trace(
-        go.Scatter(x=X, y=mus_np[:,1], name = "K"),
+        go.Scatter(x=X, y=mus_np[:,1], name = "PINN estimate of K"),
         row=2, col=1
         )
     fig.add_hline(y=w0**2, line_dash="dot", name = f"Expected k {w0**2:.2f}", row=2, col=1)

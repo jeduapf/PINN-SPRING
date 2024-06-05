@@ -18,6 +18,7 @@ class PINN():
         self.TEXT = control_params['TEXT']
         self.FIGS = control_params['FIGS']
         self.SEARCH = control_params['SEARCH']
+        self.LOSS_GIF = control_params['LOSS_GIF']
 
         # ---------------------------------------- System ----------------------------------------
         # System parameters
@@ -41,6 +42,7 @@ class PINN():
         # ---------------------------------------- PINN ----------------------------------------
         # PINN construction parameters
         self.physics_points = pinn_params["physics_points"]
+        self.adaptative_start = pinn_params["adaptative_start"]
         self.observation_points = pinn_params["observation_points"]
         self.neurons = pinn_params["neurons"]
         self.layers = pinn_params["layers"]
@@ -56,8 +58,13 @@ class PINN():
         self.regularization = pinn_params["regularization"]
         self.epochs = pinn_params["epochs"]
         self.batch = pinn_params["batch"]
-        self.k_guess = torch.nn.Parameter(torch.tensor([float(pinn_params["k_guess"])], requires_grad=True))
-        self.mu_guess = torch.nn.Parameter(torch.tensor([float(pinn_params["mu_guess"])], requires_grad=True))
+
+        if isinstance(self.adaptative_start,float):
+            self.k_guess = torch.nn.Parameter(torch.tensor([float(pinn_params["k_guess"])], requires_grad=True)).requires_grad_(False)
+            self.mu_guess = torch.nn.Parameter(torch.tensor([float(pinn_params["mu_guess"])], requires_grad=True)).requires_grad_(False)
+        else:
+            self.k_guess = torch.nn.Parameter(torch.tensor([float(pinn_params["k_guess"])], requires_grad=True))
+            self.mu_guess = torch.nn.Parameter(torch.tensor([float(pinn_params["mu_guess"])], requires_grad=True))
 
         # optimizer
         self.optimiser = torch.optim.Adam(list(self.pinn.parameters())+[self.k_guess, self.mu_guess],lr=self.learning_rate, betas=(0.95, 0.999))
@@ -97,6 +104,75 @@ class PINN():
                             system_params,
                             self.SAVE_DIR)
 
+            # define grid in case of loss gif
+            if isinstance(self.LOSS_GIF,int):
+                self.ks = np.linspace(0.9*self.k, 1.1*self.k, self.LOSS_GIF)
+                self.bs = np.linspace(-0.5*self.b,  2.5*self.b, self.LOSS_GIF) 
+                self.Bs, self.Ks = np.meshgrid(self.bs, self.ks)
+                
+                self.SAVE_DIR_LOSS = os.path.join(self.SAVE_DIR,"loss_gif")
+                try:
+                    os.mkdir(self.SAVE_DIR_LOSS)
+                except:
+                    pass
+
+                self.files_loss = []
+
+    def physics_loss_surface(self, iteration):
+        X = self.Bs
+        Y = self.Ks
+        Z = np.zeros(X.shape)
+
+        # # Position of the minimum loss of each axis
+        # J = np.argmin( np.abs(X[0,:] - self.constants[-1][0]*np.ones(X[0,:].shape)) )
+        # I = np.argmin( np.abs(Y[:,0] - self.constants[-1][1]*np.ones(Y[:,0].shape)) )
+
+        # Calculate all physics loss values for each point combination in the grid
+        for i in range(self.LOSS_GIF):
+            for j in range(self.LOSS_GIF):
+                Z[i][j] = self.physics_loss_np(X[i][j], Y[i][j])
+
+        fig = plt.figure(figsize = (17,15))
+        ax = fig.add_subplot(111, projection='3d')
+
+        # 3D surface of the chosen meshgrid
+        surf = ax.plot_surface(X, Y, Z, cmap='viridis', alpha=0.7)
+        
+        # Points on the ground (current point and expected)
+        ax.scatter(self.b, self.k, color = 'green', s = 30, label = 'Ground Truth')
+        ax.scatter(self.constants[-1][0], self.constants[-1][1], color='#ff5700', s=40, label = 'Current predicted value') # Add the current point of the network
+
+        # Dashed lines to see the current point position on the ground
+        ax.plot([self.constants[-1][0], self.constants[-1][0]], [np.min(Y), np.max(Y)], color='#ff5700', linewidth=3, linestyle='dashed')
+        ax.plot([np.min(X), np.max(X)], [self.constants[-1][1], self.constants[-1][1]], color='#ff5700', linewidth=3, linestyle='dashed')
+
+        ax.set_title(f'Loss of {self.LOSS_GIF} mesh grid points at iteration {iteration}\n b={self.constants[-1][0]:.3f}, k={self.constants[-1][1]:.3f}', fontsize=30)
+        ax.set_xlabel('b')
+        ax.set_ylabel('K')
+        ax.set_zlabel('||f||')
+
+        # Add a color bar which maps values to colors.
+        fig.colorbar(surf, shrink=0.5, aspect=5)
+
+        # Remove values of X and Y axis
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+        # Save figure for GIF and track path
+        file_name = os.path.join(self.SAVE_DIR_LOSS,"3d_loss_%.8i.png"%(iteration+1))
+        plt.savefig(file_name, dpi=100, facecolor="white")
+        self.files_loss.append(file_name)
+        plt.close(fig)
+
+    def physics_loss_np(self, b, k):
+
+        d2udt2 = self.derivatives[-1][0]
+        dudt = self.derivatives[-1][1]
+        u_phy_hat = self.derivatives[-1][2]
+        f = self.force_np
+        
+        return np.mean((d2udt2 + b*dudt + k*u_phy_hat - f)**2) 
+
     def physics_loss(self, t_physics, force):
         # PHYSICS LOSS
         u_phy_hat = self.pinn(t_physics)
@@ -112,6 +188,7 @@ class PINN():
         self.derivatives.append([d2udt2.detach().cpu().numpy().squeeze(),
                                 dudt.detach().cpu().numpy().squeeze(),
                                 u_phy_hat.detach().cpu().numpy().squeeze()])
+
         self.constants.append([ self.mu_guess.item(),
                                 self.k_guess.item()])
 
@@ -127,29 +204,35 @@ class PINN():
     def stop(self):
         return self.losses[-1][2] < self.stop_eps_u*self.losses[0][2] and torch.abs(self.constants[-1][0]/self.b_torch - 1) < self.stop_eps and torch.abs(self.constants[-1][1]/self.k_torch - 1) < self.stop_eps
 
-    def dashboard(self, i):
+    def dashboard(self, iteration):
         if self.TEXT:
-            tqdm.write(f"{i}\n>>Physics: {self.losses[-1][0]:.3f} >>Data: {self.losses[-1][1]:.3f} >>Total: {self.losses[-1][2]:.3f}\n>>Mu: {self.constants[-1][0]:.3f} >>k: {self.constants[-1][1]:.3f}\n")
+            tqdm.write(f"{iteration}\n>>Physics: {self.losses[-1][0]:.3f} >>Data: {self.losses[-1][1]:.3f} >>Total: {self.losses[-1][2]:.3f}\n>>Mu: {self.constants[-1][0]:.3f} >>k: {self.constants[-1][1]:.3f}\n")
 
         if self.PLOT:
+
             fig = plt.figure(figsize=(12,5))
 
             # To not compute any gradients in this phase
             with torch.no_grad():
                 self.pinn.eval()  # Evaluation mode
                 u = self.pinn(self.t_test)
+            
+
+                plt.scatter(self.t_obs_np, self.u_obs_np, label="Noisy observations", alpha=0.6)
+                plt.plot(self.t_test_np, u.detach().cpu().numpy(), label="PINN solution", color="tab:green")
+                plt.title(f"Training step {iteration}")
+                plt.legend()
+
+                file = os.path.join(self.SAVE_GIF_DIR,"pinn_%.8i.png"%(iteration+1))
+                plt.savefig(file, dpi=100, facecolor="white")
+                self.files.append(file)
+                plt.close(fig)
+                
+                if isinstance(self.LOSS_GIF,int):
+                    self.physics_loss_surface(iteration)
+
             self.pinn.train(True) # Back to trainning mode  
-
-            plt.scatter(self.t_obs_np, self.u_obs_np, label="Noisy observations", alpha=0.6)
-            plt.plot(self.t_test_np, u.detach().cpu().numpy(), label="PINN solution", color="tab:green")
-            plt.title(f"Training step {i}")
-            plt.legend()
-
-            file = os.path.join(self.SAVE_GIF_DIR,"pinn_%.8i.png"%(i+1))
-            plt.savefig(file, dpi=100, facecolor="white")
-            self.files.append(file)
-            plt.close(fig)
-
+                
     def step(self, i, t_physics, force):
 
         self.optimiser.zero_grad()
@@ -166,7 +249,7 @@ class PINN():
                             dat_loss.item(),
                             loss.item()])
 
-    def train(self):
+    def train(self, LOSS_GIF = False):
         self.pinn.train() # Set model to trainning mode
 
         if self.FIGS is None:
@@ -175,6 +258,13 @@ class PINN():
         if self.batch is None:
             bar = trange(self.epochs)
             for i in bar:
+
+                if isinstance(self.adaptative_start,float):
+                    if i > 10 and self.losses[0][-1] > self.adaptative_start*self.losses[-1][-1]:
+                        self.k_guess.requires_grad_(True)
+                        self.mu_guess.requires_grad_(True)
+
+
                 self.step(i, self.t_physics, self.force)
 
                 # plot the result as training progresses
@@ -226,6 +316,7 @@ class PINN():
         save_gif_PIL(os.path.join(self.SAVE_DIR,"learning_k_mu.gif"), self.files, fps=60, loop=0)
         save_gif_PIL(os.path.join(self.SAVE_DIR,"loss1.gif"), files1, fps=60, loop=0)
         save_gif_PIL(os.path.join(self.SAVE_DIR,"loss2.gif"), files2, fps=60, loop=0)
+        save_gif_PIL(os.path.join(self.SAVE_DIR,"loss_3d.gif"), self.files_loss, fps=60, loop=0)
 
     def predict(self, t):
         with torch.no_grad():
