@@ -1,54 +1,19 @@
 # Physics Informed Neural Network (PINN) - Hyper parameters tunning
 ## Mass-spring-damper PDE
 
-The main focus of this branch is to find the 'optimal' parameters for the problem (if exist). Basically doing several simulations for each different tiplet of hyperparameters (Neurons, Layers, Learning Rate) to the **SAME** system dynamics and verifying which triplet solves better the problem and which variable influences the most.
+The main focus of this branch is to visualize the losses and understand what are the impacts of different hyperparameters and frequencies.
 
-This idea was largely based on  He-Wen-Xuan Li's paper: Motion estimation and system identification of amoored buoy via physics-informed neural network ([article](https://www.sciencedirect.com/science/article/abs/pii/S0141118723002183)).
+## Results & Conclusion
 
-## Hyperparameter grid search 
+To visualize the losses for the Spring PINN problem I separated in 3 types of visualization. The physics loss, the data loss and the meshgrid loss landscape calculated using the network parameters over a range of points of $b$ and $k$ in the inverse problem scénario and for the foward problem scénario.
 
-Given the same Spring-mass system following the equation:
+- First the Data loss and Physics loss bellow for a 80 neurons 3 layers inverse problem where \mu_0 = 8.3 and k_0 = 378.5 with 100 physics points and 25 data points over 50000 iterations:
 
-$$\frac{\partial^2 x(t)}{\partial t^2} + 2\xi\omega_0\frac{\partial x(t)}{\partial t} + w_0^2x(t) = 0$$
+![Image](https://github.com/jeduapf/PINN-SPRING/blob/7d06f366115164d0146b5abec4a5332a5c378821/Adaptative_examples/b_None_n_80_l_3_mu0_8.3_k0_378.5_pys_100_obs_25_iter_50k_lr_5.00e-04_lb_8.00e%2B07/loss1.gif)
+![Image](https://github.com/jeduapf/PINN-SPRING/blob/7d06f366115164d0146b5abec4a5332a5c378821/Adaptative_examples/b_None_n_80_l_3_mu0_8.3_k0_378.5_pys_100_obs_25_iter_50k_lr_5.00e-04_lb_8.00e%2B07/loss2.gif)
 
-Assume the underlying solution $x(t)$ of the equation as a Fully Connected Neural Network where its enteries are time points
-
-```math
-t = \begin{pmatrix}t_0\\\vdots\\t_k\end{pmatrix}
-```
-and its outputs are the values of $x(t)$
-
-```math
-x(t) = \begin{pmatrix}x(t_0)\\\vdots\\x(t_k)\end{pmatrix}
-```
-for any given t in the domain $t \in D = [a,b]$. So $NN(t) \approx x(t), \forall t \in D$.
-
-Also let's add the parameters we want to discover as "weights" in the optimization of the Neural Network. So b and k are also added as learnable parameters in the training.
-
-```python
-self.k_guess = torch.nn.Parameter(torch.tensor([float(pinn_params["k_guess"])], requires_grad=True))
-self.mu_guess = torch.nn.Parameter(torch.tensor([float(pinn_params["mu_guess"])], requires_grad=True))
-
-self.optimiser = torch.optim.Adam(list(self.pinn.parameters())+[self.k_guess, self.mu_guess],lr=self.learning_rate, betas=(0.95, 0.999))
-```
-
-Train the network for each combination of the hyperparameters:
-
-$$(N,L,Lr)$$ such that $N \in [40,80,120]$, $L \in [3,6,9]$, $N \in [5 \cdot 10^-2,\ 5 \cdot 10^-3,\ 10^-3,\ 10^-4,\ 10^-5,\ 5 \cdot 10^-6]$
-
-For a fixed amount of epochs and initial k and b such that the steps needed to achive the solution is at least $0.5 * epochs * LearningRate$
-
-### Results & Conclusion
-
-![Image](https://raw.githubusercontent.com/jeduapf/PINN-SPRING/hypertuning/hyperparameter_search/errors.png)
-
-In this experiment the strogenst conclusion is that a bad choice of Learning Rate implies in bad estimation and the architecture of the network doesn't change much its convergency (except for the time to train which isn't shown above). 
-
-Also, this experiment was on a **SINGLE** case problem with low frequency ($b = 4$, $k = 400$ => $w_0 = 20$, $f_0 = 3.18 Hz$) as shown below:
-
-![Image](https://raw.githubusercontent.com/jeduapf/PINN-SPRING/main/Converged/mu0_13.0_k0_417.0_pys_300_obs_60_iter_100k_lr_3.00e-04_lb_1.00e%2B05/learning_k_mu.gif)
-
-![Image](https://github.com/jeduapf/PINN-SPRING/blob/main/Converged/mu0_13.0_k0_417.0_pys_300_obs_60_iter_100k_lr_3.00e-04_lb_1.00e+05/loss1.gif?raw=true)
+- For the loss landscape meshgrid: 
+![Image](https://github.com/jeduapf/PINN-SPRING/blob/7d06f366115164d0146b5abec4a5332a5c378821/Adaptative_examples/b_None_n_80_l_3_mu0_8.3_k0_378.5_pys_100_obs_25_iter_50k_lr_5.00e-04_lb_8.00e%2B07/loss_3d.gif)
 
 
 ## Different system dynamics
