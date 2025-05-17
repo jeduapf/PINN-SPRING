@@ -51,6 +51,13 @@ self.optimiser = torch.optim.Adam(list(self.pinn.parameters())+[self.k_guess, se
 
 ## Examples
 
+- [Hyperparameters Tunning](https://github.com/jeduapf/PINN-SPRING/tree/hypertuning)
+
+- [Loss Visualization](https://github.com/jeduapf/PINN-SPRING/tree/loss_visualization)
+
+- [External Force](https://github.com/jeduapf/PINN-SPRING/tree/external_force)
+
+- [Transfer Learning](https://github.com/jeduapf/PINN-SPRING/tree/transfer_learning)
 
 ## References
 
